@@ -1,0 +1,18 @@
+<form method="post" action="{% url 'twitter:create' %}">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {{ form.errors.username }}
+	<p>ユーザー名</p>
+    {{ form.username }}
+    {{ form.errors.password1 }}
+	<p>パスワード</p>
+    {{ form.password1 }}
+    {{ form.errors.password2 }}
+	<p>パスワードの確認</p>
+    {{ form.password2 }}
+    {{ form.errors.email }}
+	<p>E-mail</p>
+    {{ form.email }}
+    <input type="submit" value="Create">
+</form>
+

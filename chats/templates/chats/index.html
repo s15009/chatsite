@@ -1,0 +1,17 @@
+<h1>部屋リスト</h1>
+<button type="button" onclick="location.href='{% url 'twitter:login' %}'" value="Login">Login</button>
+<button type="button" onclick="location.href='{% url 'twitter:logout' %}'" value="Logout">Logout</button>
+<button type="button" onclick="location.href='{% url 'twitter:new' %}'" value="Create Account">Create Account</button>
+<button type="button" onclick="location.href='{% url 'chats:create_board' %}'" value="Create Board">Create Board</button>
+{% if latest_board_list %}
+    <ul>
+    {% for board in latest_board_list %}
+        <li><a href="{% url 'chats:board' board.id %}">{{ board.board_name }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>掲示板はないよ</p>
+{% endif %}
+
+{% load static %}
+<link rel="stylesheet" type='text/css' href="{% static 'chats/style.css' %}">

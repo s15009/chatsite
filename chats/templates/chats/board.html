@@ -1,0 +1,33 @@
+<h1>{{board.board_name}}</h1>
+
+<form id="messageForm" method="post" action="{% url 'chats:post_message' board.id %}">
+    {% csrf_token %}
+    <textarea id="text" name="text" cols="30" rows="10"></textarea>
+    <button id="submitBtn">送信</button>
+</form>
+<div id="contents"></div>
+
+<ul id="message_list">
+{% if message_list %}
+    {% for message in message_list %}
+    <div class='message'>
+        <p>投稿時間 : {{ message.get_formated_pub_date }}</p>
+        <p>メッセージ : {{ message.message }}</p>
+    </div>
+    {% endfor %}
+{% endif %}
+</ul>
+
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"
+    integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+    crossorigin="anonymous">
+</script>
+{% load static %}
+<link rel="stylesheet" type='text/css' href="{% static 'chats/style.css' %}">
+<script type="text/javascript" src="{% static 'chats/main.js' %}"></script>
+<script type="text/javascript">
+    var board_id = {{board.id}};
+    var profile_id = {{profile.id}};
+    var latest_message_pub_date = String('{{message_list.0.get_formated_pub_date}}');
+    var latest_message_id = String('{{message_list.0.id}}');
+</script>
