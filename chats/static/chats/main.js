@@ -58,6 +58,7 @@ function updateMessage() {
         },
     }).done(function(res) {
         data = res.data;
+
         if (data.length > 0) {
             var message_list = data;
 
@@ -65,6 +66,10 @@ function updateMessage() {
             latest_message = message_list[message_list.length - 1];
             latest_message_pub_date = latest_message.pub_date
             latest_message_id = latest_message.id;
+			
+			if(latest_message.is_status === 1){
+				redirect(latest_message.is_status);
+			}
 
             // メッセージ要素の追加
             $.each(message_list, function(index, message) {
@@ -79,4 +84,22 @@ function updateMessage() {
             });
         }
     });
+
+	function redirect(is_status) {	
+		$.ajax({
+			url: window.location.href + 'status',
+			type:'post',	
+			cache:'false',
+			datatype: 'JSON',
+            data:{
+                is_status: is_status
+            },
+			beforeSend: function(xhr, settings) {
+				xhr.setRequestHeader('X-CSRFToken', $("input[name='csrfmiddlewaretoken']").val());
+			},
+		}).done(function(res) {
+			console.log(res);	
+		});
+	}
 }
+
