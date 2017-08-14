@@ -73,9 +73,8 @@ def get_message(request, board_id):
 		
 	#掲示板の寿命がなくなっていればステータスに応じてリダイレクトさせる
     if board.is_status == 1:
-        #return HttpResponse(json.dumps(response))
         #return HttpResponseRedirect(reverse('chats:make_tomb'))
-        return render(request, 'chats/tomb.html')
+		return render(request, 'chats/tomb.html')
 
 
     if request.method == 'POST':
