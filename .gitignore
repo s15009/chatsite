@@ -1,2 +1,12 @@
+.gitignore
+__pycache__
+*.pyc
+db.sqlite3
 settings_local.py
-settings_local.pyc
+migrations
+
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
