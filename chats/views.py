@@ -52,11 +52,22 @@ def board(request, board_id):
     """
     個別のチャット部屋表示
     """
-    message_list = Message.objects.filter(board_id__id=board_id).order_by('-pub_date')
+
     board = Board.objects.get(id=board_id)
+    login_users = board.login_users.all()
     profile = request.user
 
-    context = {'message_list': message_list, 'board': board, 'profile': profile}
+    # 部屋別ログイン処理
+    if profile in login_users:
+        print('{}は{}に既にログインしています'.format(profile.username, board.board_name))
+    else:
+        board.login_users.add(profile)
+        print('{}は{}にログインしました'.format(profile.username, board.board_name))
+
+
+    message_list = Message.objects.filter(board_id__id=board_id).order_by('-pub_date')
+
+    context = {'message_list': message_list, 'board': board, 'profile': profile, 'login_users': login_users}
     return render(request, 'chats/board.html', context)
 
 @login_required
@@ -71,12 +82,11 @@ def get_message(request, board_id):
     
     board = Board.objects.get(id=board_id)
 		
-	#掲示板の寿命がなくなっていればステータスに応じてリダイレクトさせる
+    #掲示板の寿命がなくなっていればステータスに応じてリダイレクトさせる
     if board.is_status == 1:
         #return HttpResponse(json.dumps(response))
         #return HttpResponseRedirect(reverse('chats:make_tomb'))
         return render(request, 'chats/tomb.html')
-
 
     if request.method == 'POST':
         latest_message_id = request.POST.get('latest_message_id')
@@ -94,13 +104,30 @@ def get_message(request, board_id):
             updated_message_list = Message.objects.filter(board_id__id=board_id)
 
         # Jsonへの変換
-        data = []
+        board = Board.objects.get(id=board_id)
+        # 更新分投稿リスト
+        message_list = []
         for message in updated_message_list:
-            data.append({'id': message.id,
+            message_list.append({
+                'id': message.id,
                 'user_name': message.profile.username,
                 'message': message.message,
-                'pub_date': message.get_formated_pub_date(),
-				'is_status': board.is_status})
+                'pub_date': message.get_formated_pub_date()
+            })
+        # チャット部屋情報
+        board_info = {
+            'board_name': board.board_name,
+        }
+        
+        # ログインユーザーリスト
+        login_users = []
+        for login_user in board.login_users.all():
+            login_users.append({
+                'user_name': login_user.username
+            })
+        
+        data = {'message_list': message_list, 'board_info': board_info, 'login_users': login_users}
+        print(data)
         return JsonResponse({'data': data}, safe=False)
 
     return HttpResponse('failed', content_type='text/plain')
@@ -130,7 +157,3 @@ def get_status(request, board_id):
 @login_required
 def make_tomb(request):
 	return render(request, 'chats/tomb.html')
-
-
-
-

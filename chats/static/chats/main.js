@@ -57,19 +57,13 @@ function updateMessage() {
             xhr.setRequestHeader('X-CSRFToken', $("input[name='csrfmiddlewaretoken']").val());
         },
     }).done(function(res) {
-        data = res.data;
-
-        if (data.length > 0) {
-            var message_list = data;
-
+        // メッセージリスト更新処理
+        var message_list = res.data['message_list'];
+        if (message_list.length > 0) {
             // 最新メッセージ情報の更新
             latest_message = message_list[message_list.length - 1];
             latest_message_pub_date = latest_message.pub_date
             latest_message_id = latest_message.id;
-			
-			if(latest_message.is_status === 1){
-				redirect(latest_message.is_status);
-			}
 
             // メッセージ要素の追加
             $.each(message_list, function(index, message) {
@@ -77,12 +71,26 @@ function updateMessage() {
                 var messageDiv = $("<div></div>", {
                     'class': 'message'
                 });
+                console.log(typeof message.pub_date, message.pub_date);
+                console.log(typeof new Date(message.pub_date), new Date(message.pub_date));
                 messageDiv.append('<p>投稿時間 : ' + message.pub_date + '</p>').append('<p>メッセージ : ' + message.message + '</p>');
 
                 // listのDOMに追加する
-                $('#message_list').prepend(messageDiv);
+                $('#message_list ul').prepend(messageDiv);
             });
+
+            // メッセージ数のカウントアップ
+            message_counter_num += message_list.length;
+            $('#message_counter').text('総発言数 : ' + message_counter_num);
         }
+
+        // チャット部屋情報更新処理
+        var board_info = res.data['board_info'];
+
+        // ログインユーザー更新処理
+        var login_users = res.data['login_users'];
+        $login_users_counter = $('#login_users_counter');
+        $login_users_counter.text('ユーザー数 : ' + login_users.length);
     });
 
 	function redirect(is_status) {	
