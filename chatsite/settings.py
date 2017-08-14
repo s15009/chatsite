@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'twitter',
     'social_django',
     'social.apps.django_app.default',
+	'django_crontab',
 ]
 
 
@@ -77,6 +78,11 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'chatsite.wsgi.application'
+# crontabs setting
+CRONJOBS = [
+    ('*/1 * * * *', 'django.core.management.call_command', ['regulary_board']),
+]
+
 
 # twitter OAuth
 

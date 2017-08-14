@@ -14,6 +14,8 @@ from twitter.models import Twitter
 import json
 from datetime import datetime
 
+from django.urls import reverse
+
 
 #@method_decorator(login_required, name='dispatch')
 class IndexView(generic.ListView):
@@ -66,6 +68,16 @@ def get_message(request, board_id):
     latest_message_id, latest_message_pub_dateが空のリクエストの場合は
     1件もメッセージが投稿されていない
     '''
+    
+    board = Board.objects.get(id=board_id)
+		
+	#掲示板の寿命がなくなっていればステータスに応じてリダイレクトさせる
+    if board.is_status == 1:
+        #return HttpResponse(json.dumps(response))
+        #return HttpResponseRedirect(reverse('chats:make_tomb'))
+        return render(request, 'chats/tomb.html')
+
+
     if request.method == 'POST':
         latest_message_id = request.POST.get('latest_message_id')
         lmpdt = request.POST.get('latest_message_pub_date')
@@ -87,7 +99,8 @@ def get_message(request, board_id):
             data.append({'id': message.id,
                 'user_name': message.profile.username,
                 'message': message.message,
-                'pub_date': message.get_formated_pub_date()})
+                'pub_date': message.get_formated_pub_date(),
+				'is_status': board.is_status})
         return JsonResponse({'data': data}, safe=False)
 
     return HttpResponse('failed', content_type='text/plain')
@@ -108,3 +121,16 @@ def post_message(request, board_id):
         return HttpResponse('successful', content_type="text/plain")
 
     return HttpResponse('failed', content_type='text/plain')
+
+def get_status(request, board_id):
+	'''ステータスを見て、墓ページに移行'''
+	if request.method == 'POST':
+		pass	    
+
+@login_required
+def make_tomb(request):
+	return render(request, 'chats/tomb.html')
+
+
+
+
