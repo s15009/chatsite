@@ -41,7 +41,7 @@ def create_board(request):
             board = form.save(commit=False)
             board.admin_id = request.user
             board.save()
-            return HttpResponseRedirect('/chats/')
+            return HttpResponseRedirect('/')
     else:
         form = BoardForm()
 
@@ -57,6 +57,12 @@ def board(request, board_id):
     board = Board.objects.get(id=board_id)
     login_users = board.login_users.all()
     profile = request.user
+
+    # 部屋が死んでいたら墓場ページへ
+    if board.is_status == 1 or not board.is_alive():
+        comment_list = Message.objects.filter(board_id__id=board_id)
+        context = {'board': board, 'comment_list': comment_list}
+        return render(request, 'chats/tomb.html', context)
 
     # 部屋別ログイン処理
     if profile in login_users:
@@ -80,12 +86,12 @@ def get_message(request, board_id):
     latest_message_id, latest_message_pub_dateが空のリクエストの場合は
     1件もメッセージが投稿されていない
     '''
-    
+
     board = Board.objects.get(id=board_id)
     #掲示板の寿命がなくなっていればステータスに応じてリダイレクトさせる
-    if board.is_status == 1:
-        return HttpResponseRedirect(reverse('chats:make_tomb'))
-        #return render(request, 'chats/tomb.html')
+    if board.is_status == 1 or not board.is_alive():
+        data = {'is_alive' : False}
+        return JsonResponse({'data': data}, safe=False)
 
     if request.method == 'POST':
         latest_message_id = request.POST.get('latest_message_id')
@@ -96,9 +102,9 @@ def get_message(request, board_id):
             # DBから最新のメッセージのみを取得
             latest_message_pub_date = datetime.strptime(lmpdt, Message.DATETIME_FORMAT)
             updated_message_list = Message.objects\
-                .filter(board_id__id=board_id)\
-                .filter(pub_date__gt=latest_message_pub_date)\
-                .exclude(id=latest_message_id)
+                    .filter(board_id__id=board_id)\
+                    .filter(pub_date__gt=latest_message_pub_date)\
+                    .exclude(id=latest_message_id)
         else:
             updated_message_list = Message.objects.filter(board_id__id=board_id)
 
@@ -112,22 +118,20 @@ def get_message(request, board_id):
                 'user_name': message.profile.username,
                 'message': message.message,
                 'pub_date': message.get_formated_pub_date()
-            })
-        # チャット部屋情報
+                })
+            # チャット部屋情報
         board_info = {
-            'board_name': board.board_name,
-			'board_status': board.is_status,
-        }
-        
+               'board_name': board.board_name,
+                }
+
         # ログインユーザーリスト
         login_users = []
         for login_user in board.login_users.all():
             login_users.append({
                 'user_name': login_user.username
-            })
-        
-        data = {'message_list': message_list, 'board_info': board_info, 'login_users': login_users}
-        print(data)
+                })
+
+            data = {'message_list': message_list, 'board_info': board_info, 'login_users': login_users}
         return JsonResponse({'data': data}, safe=False)
 
     return HttpResponse('failed', content_type='text/plain')
@@ -154,9 +158,7 @@ def get_status(request, board_id):
     if request.method == 'POST':
         pass
 
-
 @login_required
 def make_tomb(request):
     return render(request, 'chats/tomb.html')
-
 

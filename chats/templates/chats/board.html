@@ -18,9 +18,10 @@
         <div id="board_info">
             <h2>部屋情報</h2>
             <ul>
-                <li id="">残り時間 : </li>
-                <li id="time_counter">残り時間 : </li>
-                <li id="time_counter">経過時間 : </li>
+                <li id="now_date">現在時間 : </li>
+                <li id="board_pub_date">作成時間 : {{ board.get_display_pub_date }}</li>
+                <li id="elapsed_time">経過時間 : </li>
+                <li id="lifespan">寿命 : {{ board.lifespan }}秒</li>
                 <li id="login_users_counter">ユーザー数 : </li>
                 <li id="message_counter">総発言数 : {{ message_list.count }}</li>
             </ul>
@@ -48,6 +49,7 @@
     <script type="text/javascript">
         var board_id = {{ board.id }};
         var board_pub_date = String('{{ board.get_formated_pub_date }}');
+        var board_lifespan = {{ board.lifespan }};
         var profile_id = {{ profile.id }};
         var latest_message_pub_date = String('{{ message_list.0.get_formated_pub_date}}');
         var latest_message_id = String('{{ message_list.0.id }}');
