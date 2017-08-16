@@ -86,6 +86,7 @@ function updateMessage() {
 
         // チャット部屋情報更新処理
         var board_info = res.data['board_info'];
+		console.log(board_info);
 
         // ログインユーザー更新処理
         var login_users = res.data['login_users'];

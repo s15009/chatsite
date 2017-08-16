@@ -15,7 +15,7 @@ class Command(BaseCommand):
 	def handle(self, *args, **options):
 		try:
 			for board in Board.objects.filter(is_status=0):
-				if board.is_alive:
+				if not board.is_alive:
 					board.is_status += 1
 					board.save()
 		except Board.DoesNotExist:

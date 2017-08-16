@@ -29,6 +29,7 @@ class IndexView(generic.ListView):
     def get_queryset(self):
         return Board.objects.order_by('-pub_date')[:10]
 
+
 @login_required
 def create_board(request):
     """
@@ -81,11 +82,10 @@ def get_message(request, board_id):
     '''
     
     board = Board.objects.get(id=board_id)
-		
     #掲示板の寿命がなくなっていればステータスに応じてリダイレクトさせる
     if board.is_status == 1:
-        #return HttpResponseRedirect(reverse('chats:make_tomb'))
-		return render(request, 'chats/tomb.html')
+        return HttpResponseRedirect(reverse('chats:make_tomb'))
+        #return render(request, 'chats/tomb.html')
 
     if request.method == 'POST':
         latest_message_id = request.POST.get('latest_message_id')
@@ -116,6 +116,7 @@ def get_message(request, board_id):
         # チャット部屋情報
         board_info = {
             'board_name': board.board_name,
+			'board_status': board.is_status,
         }
         
         # ログインユーザーリスト
@@ -149,10 +150,13 @@ def post_message(request, board_id):
     return HttpResponse('failed', content_type='text/plain')
 
 def get_status(request, board_id):
-	'''ステータスを見て、墓ページに移行'''
-	if request.method == 'POST':
-		pass	    
+    '''ステータスを見て、墓ページに移行'''
+    if request.method == 'POST':
+        pass
+
 
 @login_required
 def make_tomb(request):
-	return render(request, 'chats/tomb.html')
+    return render(request, 'chats/tomb.html')
+
+
