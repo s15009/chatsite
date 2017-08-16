@@ -29,6 +29,7 @@ class IndexView(generic.ListView):
     def get_queryset(self):
         return Board.objects.order_by('-pub_date')[:10]
 
+
 @login_required
 def create_board(request):
     """
@@ -59,7 +60,9 @@ def board(request, board_id):
 
     # 部屋が死んでいたら墓場ページへ
     if board.is_status == 1 or not board.is_alive():
-        return render(request, 'chats/tomb.html')
+        comment_list = Message.objects.filter(board_id__id=board_id)
+        context = {'board': board, 'comment_list': comment_list}
+        return render(request, 'chats/tomb.html', context)
 
     # 部屋別ログイン処理
     if profile in login_users:
@@ -85,7 +88,6 @@ def get_message(request, board_id):
     '''
 
     board = Board.objects.get(id=board_id)
-
     #掲示板の寿命がなくなっていればステータスに応じてリダイレクトさせる
     if board.is_status == 1 or not board.is_alive():
         data = {'is_alive' : False}
@@ -119,7 +121,7 @@ def get_message(request, board_id):
                 })
             # チャット部屋情報
         board_info = {
-                'board_name': board.board_name,
+               'board_name': board.board_name,
                 }
 
         # ログインユーザーリスト
@@ -159,3 +161,4 @@ def get_status(request, board_id):
 @login_required
 def make_tomb(request):
     return render(request, 'chats/tomb.html')
+
