@@ -41,7 +41,8 @@ def create_board(request):
             board = form.save(commit=False)
             board.admin_id = request.user
             board.save()
-            return HttpResponseRedirect('/')
+            return HttpResponseRedirect(reverse('chats:board', args=(board.id, )))
+            #return HttpResponseRedirect('/')
     else:
         form = BoardForm()
 

@@ -94,7 +94,7 @@ AUTHENTICATION_BACKENDS = [
 
 AUTH_USER_MODEL = 'twitter.Twitter'
 
-LOGIN_REDIRECT_URL = '/chats/'
+LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/twitter/login/'
 
 

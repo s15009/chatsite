@@ -25,7 +25,7 @@ def create(request):
         if form.is_valid():
             twitter = form.save()
             login(request, twitter, backend='Loginbackend')
-            return HttpResponseRedirect('/chats/')
+            return HttpResponseRedirect(reverse('chats:index'))
         return render(request, 'twitter/new.html', {'form': form,})
     else:
         raise Http404
