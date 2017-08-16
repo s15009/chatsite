@@ -10,6 +10,7 @@ from twitter.models import Twitter
 
 class Board(models.Model):
     DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S:%f %z'
+    DISPLAY_DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
     board_name = models.CharField(max_length=100, verbose_name="部屋の名前")
     admin_id = models.ForeignKey(Twitter)
@@ -27,7 +28,12 @@ class Board(models.Model):
             return False
 
     def get_formated_pub_date(self):
-        return self.pub_date.strftime(self.DATETIME_FORMAT)
+        jptime = self.pub_date + timedelta(hours = 9)
+        return jptime.strftime(self.DATETIME_FORMAT)
+
+    def get_display_pub_date(self):
+        jptime = self.pub_date + timedelta(hours = 9)
+        return self.pub_date.strftime(self.DISPLAY_DATETIME_FORMAT)
 
     def __str__(self):
         return self.board_name
@@ -41,6 +47,7 @@ class Message(models.Model):
     pub_date = models.DateTimeField('date publish')
 
     def get_formated_pub_date(self):
+        jptime = self.pub_date + timedelta(hours = 9)
         return self.pub_date.strftime(self.DATETIME_FORMAT)
 
     def __str__(self):

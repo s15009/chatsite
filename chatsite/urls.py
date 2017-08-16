@@ -17,7 +17,7 @@ from django.conf.urls import include, url
 from django.contrib import admin 
 
 urlpatterns = [
-    url(r'^chats/', include('chats.urls')),
+    url(r'', include('chats.urls')),
     url(r'^twitter/', include('twitter.urls')),
     url(r'', include('social_django.urls', namespace = 'social')),
     url(r'^admin/', admin.site.urls),

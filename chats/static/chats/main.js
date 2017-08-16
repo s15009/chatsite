@@ -1,4 +1,22 @@
 $(function() {
+
+    // 現在時刻
+    var now = new Date();
+    formated_now = 
+        now.getFullYear() + '-' + 
+        (now.getMonth() + 1) + '-' + 
+        now.getDate() + ' ' + 
+        now.getHours() + ':' + 
+        now.getMinutes() + ':' + 
+        now.getSeconds();
+    $('#now_date').text('現在時間 : ' + formated_now);
+
+    var timer = setInterval(function() {
+        var b_pub_date = new Date(board_pub_date.slice(0, -9));
+        var elapsed_time = (Date.now() - b_pub_date) / 1000;
+        $('#elapsed_time').text('経過時間 : ' + Math.floor(elapsed_time));
+    }, 100);
+
     // 定期処理
     var check = setInterval('updateMessage()', 3000);
 
@@ -57,6 +75,11 @@ function updateMessage() {
             xhr.setRequestHeader('X-CSRFToken', $("input[name='csrfmiddlewaretoken']").val());
         },
     }).done(function(res) {
+        // チャット部屋が死んでいたらリダイレクトする
+        if (res.data['is_alive'] == false) {
+            window.location.href = window.location.href;
+        }
+
         // メッセージリスト更新処理
         var message_list = res.data['message_list'];
         if (message_list.length > 0) {
@@ -71,8 +94,6 @@ function updateMessage() {
                 var messageDiv = $("<div></div>", {
                     'class': 'message'
                 });
-                console.log(typeof message.pub_date, message.pub_date);
-                console.log(typeof new Date(message.pub_date), new Date(message.pub_date));
                 messageDiv.append('<p>投稿時間 : ' + message.pub_date + '</p>').append('<p>メッセージ : ' + message.message + '</p>');
 
                 // listのDOMに追加する
@@ -110,4 +131,3 @@ function updateMessage() {
 		});
 	}
 }
-
