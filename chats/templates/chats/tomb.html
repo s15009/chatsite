@@ -1,1 +1,28 @@
-<h1>墓！！！！</h1>
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <title>{{ board.board_name }}の跡地</title>
+        <meta charset="UTF-8">
+        {% load static %} 
+        <link rel="stylesheet" type="text/css" href="{% static 'chats/tomb.css'  %}">
+    </head>
+    <body>
+        <h1>{{ board.board_name }}の跡地</h1>    
+        
+        <div id="comment_list">
+            <h2>歴史</h2>
+            <p>{{ board.get_display_pub_date  }} 〜 {{ board.get_display_dead_time }}</p>
+            <ul>
+            {% if comment_list %}
+                {% for comment in comment_list %}
+                    <div class="comment">
+                        <li>コメント: {{ comment.message }}</li>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            </ul>
+        </div>
+
+        
+    </body>
+</html>

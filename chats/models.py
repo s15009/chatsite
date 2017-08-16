@@ -33,7 +33,11 @@ class Board(models.Model):
 
     def get_display_pub_date(self):
         jptime = self.pub_date + timedelta(hours = 9)
-        return self.pub_date.strftime(self.DISPLAY_DATETIME_FORMAT)
+        return jptime.strftime(self.DISPLAY_DATETIME_FORMAT)
+    
+    def get_display_dead_time(self):
+        dead_time = self.pub_date + timedelta(hours = 9, seconds = self.lifespan)
+        return dead_time.strftime(self.DISPLAY_DATETIME_FORMAT)
 
     def __str__(self):
         return self.board_name
