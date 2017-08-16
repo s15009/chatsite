@@ -58,8 +58,10 @@ def board(request, board_id):
     profile = request.user
 
     # 部屋が死んでいたら墓場ページへ
+    '''
     if board.is_status == 1 or not board.is_alive():
         return render(request, 'chats/tomb.html')
+    '''
 
     # 部屋別ログイン処理
     if profile in login_users:
@@ -87,9 +89,11 @@ def get_message(request, board_id):
     board = Board.objects.get(id=board_id)
 
     #掲示板の寿命がなくなっていればステータスに応じてリダイレクトさせる
+    '''
     if board.is_status == 1 or not board.is_alive():
         data = {'is_alive' : False}
         return JsonResponse({'data': data}, safe=False)
+    '''
 
     if request.method == 'POST':
         latest_message_id = request.POST.get('latest_message_id')

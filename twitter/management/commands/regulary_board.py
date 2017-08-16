@@ -12,7 +12,6 @@ class Command(BaseCommand):
 
     #ここが呼ばれる
     def handle(self, *args, **options):
-        print('call handle')
         try:
             for board in Board.objects.filter(is_status=0):
                 if not board.is_alive:

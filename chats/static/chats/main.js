@@ -1,4 +1,34 @@
 $(function() {
+    // フォームの動き処理
+    $('#text').on('click', function() {
+        $('#submitBtn').show();
+        $('#text').prop('rows', 2);
+    });
+
+    $('#text').on('keyup', function() {
+        var text = $('#text');
+        if (text.val() == '') {
+            $('#submitBtn').prop('disabled', true);
+        }
+        else {
+            $('#submitBtn').prop('disabled', false);
+        }
+        // テキストボックスのrowsの調整
+        var return_num = text.val().match(/\n/gm);
+        if (return_num) {
+            text.prop('rows', (return_num.length + 2));
+        }
+        else {
+            text.prop('rows', 2);
+        }
+    });
+
+    $(document).on('click', function(e) {
+        if (!$.contains($('#messageForm')[0], e.target) && $('#text').val() == '') {
+            $('#submitBtn').hide();
+            $('#text').prop('rows', 1);
+        }
+    });
 
     // 現在時刻
     var now = new Date();
@@ -28,11 +58,13 @@ $(function() {
         e.preventDefault();
 
         // 2重クリック防止
+        /*
         var self = this;
         $(':submit', self).prop('disabled', true);
         setTimeout(function() {
             $(':submit', self).prop('disabled', false);
         }, 1000);
+        */
 
         // メッセージ送信
         $.ajax({
@@ -49,9 +81,12 @@ $(function() {
             },
         }).done(function(data, textStatus, jqXHR) {
             var $data = $(data);
-            var $root = $('#contents');
-            $root.empty();
-            $root.append($data);
+
+            // テキストフォームの初期化
+            $('#text').val('');
+            $('#submitBtn').prop('disabled', true);
+            $('#text').prop('rows', 2);
+
             updateMessage();
             $data.ready(function() {
             });
@@ -94,7 +129,7 @@ function updateMessage() {
                 var messageDiv = $("<div></div>", {
                     'class': 'message'
                 });
-                messageDiv.append('<p>投稿時間 : ' + message.pub_date + '</p>').append('<p>メッセージ : ' + message.message + '</p>');
+                messageDiv.append('<p>' + message.message + '</p>');
 
                 // listのDOMに追加する
                 $('#message_list ul').prepend(messageDiv);

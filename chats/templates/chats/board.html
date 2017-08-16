@@ -7,16 +7,34 @@
     <link rel="stylesheet" type='text/css' href="{% static 'chats/style.css' %}">
 </head>
 <body>
-    <h1>{{board.board_name}}</h1>
+    <header class="head">
+        <p class="title_logo">Time Bokan</p>
+        <p class="board_name">{{ board.board_name }}</p>
+        <p class="user_name">{{ profile.username }}</p>
+    </header>
 
-    <form id="messageForm" method="post" action="{% url 'chats:post_message' board.id %}">
-        {% csrf_token %}
-        <textarea id="text" name="text" cols="30" rows="10"></textarea>
-        <button id="submitBtn">送信</button>
-    </form>
     <div id="main">
+        <div id="user_info">
+            <p>{{ profile.username }}</p>
+        </div>
+        <div id="message_list">
+            <form id="messageForm" method="post" action="{% url 'chats:post_message' board.id %}">
+                {% csrf_token %}
+                <textarea id="text" name="text" cols="50" rows="1" required placeholder="今の気持は?"></textarea>
+                <br>
+                <button id="submitBtn" disabled="true">送信</button>
+            </form>
+            <ul>
+                {% if message_list %}
+                    {% for message in message_list %}
+                    <div class='message'>
+                        <p>{{ message.message }}</p>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </ul>
+        </div>
         <div id="board_info">
-            <h2>部屋情報</h2>
             <ul>
                 <li id="now_date">現在時間 : </li>
                 <li id="board_pub_date">作成時間 : {{ board.get_display_pub_date }}</li>
@@ -26,20 +44,9 @@
                 <li id="message_counter">総発言数 : {{ message_list.count }}</li>
             </ul>
         </div>
-        <div id="message_list">
-            <h2>タイムライン</h2>
-            <ul>
-            {% if message_list %}
-                {% for message in message_list %}
-                <div class='message'>
-                    <p>投稿時間 : {{ message.get_formated_pub_date }}</p>
-                    <p>メッセージ : {{ message.message }}</p>
-                </div>
-                {% endfor %}
-            {% endif %}
-            </ul>
-        </div>
-</div>
+    </div>
+    <footer>
+    </footer>
 
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"
         integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
