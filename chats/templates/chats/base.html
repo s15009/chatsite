@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" type='text/css' href="{% static 'chats/base.css' %}">
+    {% block style %}{% endblock %}
+</head>
+<body>
+    <header>
+        <p class="home_btn">Home</p>
+        <p class="site_logo">Time Bokan</p>
+        <p class="user_name">{% block user_name %}{% endblock %}</p>
+    </header>
+
+    <div id="main">
+        {% block content %}{% endblock %}
+    </div>
+    <footer> 
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous">
+    </script>
+    {% block script %}{% endblock %}
+</body>
+</html>

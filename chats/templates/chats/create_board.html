@@ -1,7 +1,15 @@
-<form action="{% url 'chats:create_board' %}" method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Submit" />
-</form>
-{% load static %}
-<link rel="stylesheet" type='text/css' href="{% static 'chats/style.css' %}">
+{% extends "chats/base.html" %}
+
+{% block title %}{{ board.board_name }}{% endblock %}
+
+{% block style %}{% load static %}<link rel="stylesheet" type='text/css' href="{% static 'chats/create_board.css' %}">{% endblock %}
+
+{% block user_name %}{{ profile.username }}{% endblock %}
+
+{% block content %}
+    <form action="{% url 'chats:create_board' %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Submit" />
+    </form>
+{% endblock %}
