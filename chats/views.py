@@ -42,7 +42,6 @@ def create_board(request):
             board.admin_id = request.user
             board.save()
             return HttpResponseRedirect(reverse('chats:board', args=(board.id, )))
-            #return HttpResponseRedirect('/')
     else:
         form = BoardForm()
 
@@ -114,10 +113,12 @@ def get_message(request, board_id):
         # 更新分投稿リスト
         message_list = []
         for message in updated_message_list:
+            # テキストのHTMLタグ変換
+            message_text = message.message.replace('\n', '<br>')
             message_list.append({
                 'id': message.id,
                 'user_name': message.profile.username,
-                'message': message.message,
+                'message': message_text,
                 'pub_date': message.get_formated_pub_date()
                 })
             # チャット部屋情報

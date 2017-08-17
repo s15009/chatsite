@@ -28,7 +28,7 @@
                 {% if message_list %}
                     {% for message in message_list %}
                     <div class='message'>
-                        <p>{{ message.message }}</p>
+                        <p>{{ message.message | linebreaksbr }}</p>
                     </div>
                     {% endfor %}
                 {% endif %}

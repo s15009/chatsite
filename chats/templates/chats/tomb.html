@@ -16,7 +16,7 @@
             {% if comment_list %}
                 {% for comment in comment_list %}
                     <div class="comment">
-                        <li>コメント: {{ comment.message }}</li>
+                        <li>コメント: {{ comment.message | linebreaksbr }}</li>
                     </div>
                 {% endfor %}
             {% endif %}
