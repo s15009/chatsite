@@ -36,10 +36,9 @@
         </div>
         <div id="board_info">
             <ul>
-                <li id="now_date">現在時間 : </li>
-                <li id="board_pub_date">作成時間 : {{ board.get_display_pub_date }}</li>
-                <li id="elapsed_time">経過時間 : </li>
+                <li id="timelimit">残り時間 : </li>
                 <li id="lifespan">寿命 : {{ board.lifespan }}秒</li>
+                <li id="board_pub_date">作成日時 : {{ board.get_display_pub_date }}</li>
                 <li id="login_users_counter">ユーザー数 : </li>
                 <li id="message_counter">総発言数 : {{ message_list.count }}</li>
             </ul>

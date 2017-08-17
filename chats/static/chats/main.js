@@ -30,21 +30,19 @@ $(function() {
         }
     });
 
-    // 現在時刻
-    var now = new Date();
-    formated_now = 
-        now.getFullYear() + '-' + 
-        (now.getMonth() + 1) + '-' + 
-        now.getDate() + ' ' + 
-        now.getHours() + ':' + 
-        now.getMinutes() + ':' + 
-        now.getSeconds();
-    $('#now_date').text('現在時間 : ' + formated_now);
-
+    // 寿命のカウントダウン処理
     var timer = setInterval(function() {
         var b_pub_date = new Date(board_pub_date.slice(0, -9));
         var elapsed_time = (Date.now() - b_pub_date) / 1000;
-        $('#elapsed_time').text('経過時間 : ' + Math.floor(elapsed_time));
+        var timelimit = (board_lifespan - Math.floor(elapsed_time));
+
+        // 寿命が-1になるとリダイレクトする
+        if (timelimit <= 0) {
+            clearInterval(timer);
+            console.log('timer : ' + timer);
+            window.location.href = window.location.href;
+        }
+        $('#timelimit').text('残り時間 : ' + timelimit);
     }, 100);
 
     // 定期処理
@@ -142,7 +140,6 @@ function updateMessage() {
 
         // チャット部屋情報更新処理
         var board_info = res.data['board_info'];
-		console.log(board_info);
 
         // ログインユーザー更新処理
         var login_users = res.data['login_users'];
