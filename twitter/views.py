@@ -1,4 +1,4 @@
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render, render_to_response, reverse
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponseRedirect
