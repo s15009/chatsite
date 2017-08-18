@@ -12,7 +12,7 @@ class Board(models.Model):
     DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S:%f %z'
     DISPLAY_DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
-    board_name = models.CharField(max_length=100, verbose_name="部屋の名前")
+    board_name = models.CharField(max_length=100, verbose_name="ルーム名")
     admin_id = models.ForeignKey(Twitter)
     pub_date = models.DateTimeField('date publish', auto_now=True)
     is_status = models.IntegerField(default=0)

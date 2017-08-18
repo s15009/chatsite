@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'twitter',
     'social_django',
     'social.apps.django_app.default',
-	'django_crontab',
+    'django_crontab',
+    'bootstrapform',
 ]
 
 

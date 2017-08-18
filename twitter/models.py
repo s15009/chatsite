@@ -20,7 +20,7 @@ class TwitterUserManager(BaseUserManager):
 
 class Twitter(AbstractBaseUser):
 		
-	username = models.CharField(verbose_name = 'username', max_length=40, unique=True)	
+	username = models.CharField(verbose_name = 'ユーザー名', max_length=40, unique=True)	
 	email = models.CharField(verbose_name = 'email', max_length=40, unique=True)
 	#social = User.social_auth.get(provider='twitter')
 	#twitter_token = social.extra_data['access_token']

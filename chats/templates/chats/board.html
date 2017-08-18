@@ -1,54 +1,67 @@
 {% extends "chats/base.html" %}
 
-{% block title %}{{ board.board_name }}{% endblock %}
+{% block title %}{{ board.board_name }} || Time Bokan{% endblock %}
 
-{% block style %}{% load static %}<link rel="stylesheet" type='text/css' href="{% static 'chats/board.css' %}">{% endblock %}
-
-{% block user_name %}{{ profile.username }}{% endblock %}
-
-{% block content %}
-<div id="user_info">
-    <p>{{ profile.username }}</p>
+{% block account %}
+{% if user %}
+<div class="dropdown show">
+    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        {{ user.username }}
+    </a>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+        <a class="dropdown-item" href="{% url 'twitter:logout' %}" value="Logout">ログアウト</a>
+    </div>
 </div>
-<div id="message_list">
-    <form id="messageForm" method="post" action="{% url 'chats:post_message' board.id %}">
-        {% csrf_token %}
-        <textarea id="text" name="text" cols="50" rows="1" required placeholder="今の気持は?"></textarea>
-        <br>
-        <button id="submitBtn" disabled="true">送信</button>
-    </form>
-    <ul>
-        {% if message_list %}
-            {% for message in message_list %}
-            <div class='message'>
-                <p>{{ message.message | linebreaksbr }}</p>
-            </div>
-            {% endfor %}
-        {% endif %}
-    </ul>
-</div>
-<div id="board_info">
-    <ul>
-        <li hidden></li>
-        <li id="timelimit">残り時間 : </li>
-        <li id="lifespan">寿命 : {{ board.lifespan }}秒</li>
-        <li id="board_pub_date">作成日時 : {{ board.get_display_pub_date }}</li>
-        <li id="login_users_counter">ユーザー数 : </li>
-        <li id="message_counter">総発言数 : {{ message_list.count }}</li>
-    </ul>
-</div>
+{% endif %}
 {% endblock %}
 
-{% block script %}
-{% load static %}
-<script type="text/javascript" src="{% static 'chats/main.js' %}"></script>
-<script type="text/javascript">
-    var board_id = {{ board.id }};
-    var board_pub_date = String('{{ board.get_formated_pub_date }}');
-    var board_lifespan = {{ board.lifespan }};
-    var profile_id = {{ profile.id }};
-    var latest_message_pub_date = String('{{ message_list.0.get_formated_pub_date}}');
-    var latest_message_id = String('{{ message_list.0.id }}');
-    var message_counter_num = {{ message_list.count }};
-</script>
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div id="user_info" class="col m-3" style="border: solid 2px #aaa">
+            <p>{{ profile.username }}</p>
+        </div>
+        <div id="message_list" class="col m-3" style="border: solid 2px #aaa; padding: 0;">
+            <form id="messageForm" method="post" action="{% url 'chats:post_message' board.id %}">
+                {% csrf_token %}
+                <textarea id="text" name="text" cols="50" rows="1" required placeholder="今の気持は?"></textarea>
+                <br>
+                <button id="submitBtn" disabled="true">送信</button>
+            </form>
+            <ul class="list-group">
+                {% if message_list %}
+                {% for message in message_list %}
+                <div class='message'>
+                    <li class="list-group-item my-2"><p>{{ message.message | linebreaksbr }}</p></li>
+                </div>
+                {% endfor %}
+                {% endif %}
+            </ul>
+        </div>
+        <div id="board_info" class="col m-3" style="border: solid 2px #aaa">
+            <ul>
+                <li hidden></li>
+                <li id="timelimit">残り時間 : </li>
+                <li id="lifespan">寿命 : {{ board.lifespan }}秒</li>
+                <li id="board_pub_date">作成日時 : {{ board.get_display_pub_date }}</li>
+                <li id="login_users_counter">ユーザー数 : </li>
+                <li id="message_counter">総発言数 : {{ message_list.count }}</li>
+            </ul>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block script %}
+    {% load static %}
+    <script type="text/javascript" src="{% static 'chats/main.js' %}"></script>
+    <script type="text/javascript">
+var board_id = {{ board.id }};
+var board_pub_date = String('{{ board.get_formated_pub_date }}');
+var board_lifespan = {{ board.lifespan }};
+var profile_id = {{ profile.id }};
+var latest_message_pub_date = String('{{ message_list.0.get_formated_pub_date}}');
+var latest_message_id = String('{{ message_list.0.id }}');
+var message_counter_num = {{ message_list.count }};
+    </script>
+</div>
 {% endblock %}

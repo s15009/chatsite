@@ -17,17 +17,23 @@ from datetime import datetime
 from django.urls import reverse
 
 
-#@method_decorator(login_required, name='dispatch')
-class IndexView(generic.ListView):
+def index(request):
     """
-    チャット部屋のリスト表示
-    暫定でのもの
+    サイトのトップページ
+    チャット部屋のリストを表示
     """
-    template_name = 'chats/index.html'
-    context_object_name = 'latest_board_list'
+    latest_board_list = Board.objects.order_by('-pub_date')[:10]
+    user = request.user
+    if not user.is_authenticated:
+        user = None
+    print('user :', user)
 
-    def get_queryset(self):
-        return Board.objects.order_by('-pub_date')[:10]
+    context = {
+            'latest_board_list': latest_board_list,
+            'user': user
+    }
+
+    return render(request, 'chats/index.html', context)
 
 
 @login_required
@@ -45,7 +51,13 @@ def create_board(request):
     else:
         form = BoardForm()
 
-    return render(request, 'chats/create_board.html', {'form': form})
+    user = request.user
+    context = {
+            'form': form,
+            'user': user
+    }
+
+    return render(request, 'chats/create_board.html', context)
 
 
 @login_required

@@ -2,21 +2,78 @@
 
 {% block title %}Time Bokan{% endblock %}
 
-{% block user_name %}Blank{% endblock %}
+{% block account %}
+{% if user %}
+<div class="dropdown show">
+    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        {{ user.username }}
+    </a>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+        <a class="dropdown-item" href="{% url 'twitter:logout' %}" value="Logout">ログアウト</a>
+    </div>
+</div>
+{% else %}
+<li class="nav-item">
+    <a class="nav-link btn btn-primary mx-1" href="{% url 'twitter:new' %}" value="Create Account" role="button">ユーザー登録</a>
+</li>
+<li>
+    <a class="nav-link btn btn-primary mx-1" href="{% url 'twitter:login' %}" value="Login" role="button">ログイン</a>
+</li>
+{% endif %}
+{% endblock %}
 
 {% block content %}
-    <h1>部屋リスト</h1>
-    <button type="button" onclick="location.href='{% url 'twitter:login' %}'" value="Login">Login</button>
-    <button type="button" onclick="location.href='{% url 'twitter:logout' %}'" value="Logout">Logout</button>
-    <button type="button" onclick="location.href='{% url 'twitter:new' %}'" value="Create Account">Create Account</button>
-    <button type="button" onclick="location.href='{% url 'chats:create_board' %}'" value="Create Board">Create Board</button>
-    {% if latest_board_list %}
-        <ul>
-        {% for board in latest_board_list %}
-            <li><a href="{% url 'chats:board' board.id %}">{{ board.board_name }}</a></li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>掲示板はないよ</p>
-    {% endif %}
+<div class="container">
+    <h1>ルームリスト</h1>
+    <div class="row">
+        <div class="col">
+            <h2>最新のルーム</h2>
+            <table class="table table-bordered table-hover table-sm">
+                <thead class="thead-inverse">
+                    <tr>
+                        <th>ルーム名</th>
+                        <th>メンバー数</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if latest_board_list %}
+                    {% for board in latest_board_list %}
+                    {% if board.is_alive %}
+                    <tr onclick="location.href='{% url 'chats:board' board.id %}'">
+                        <td>{{ board.board_name }}</td>
+                        <td>{{ board.login_users.count }}</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    {% else %}
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        <div class="col">
+            <h2>最新の墓</h2>
+            <table class="table table-bordered table-hover table-sm">
+                <thead class="thead-inverse">
+                    <tr>
+                        <th>ルーム名</th>
+                        <th>メンバー数</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if latest_board_list %}
+                    {% for board in latest_board_list %}
+                    {% if not board.is_alive %}
+                    <tr onclick="location.href='{% url 'chats:board' board.id %}'">
+                        <td>{{ board.board_name }}</td>
+                        <td>{{ board.login_users.count }}</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    {% else %}
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 {% endblock %}
