@@ -32,7 +32,7 @@
                 {% if message_list %}
                 {% for message in message_list %}
                 <div class='message'>
-                    <li class="list-group-item my-2"><p>{{ message.message | linebreaksbr }}</p></li>
+                    <li class="list-group-item my-2"><p>{{ message.message | urlize | linebreaksbr }}</p></li>
                 </div>
                 {% endfor %}
                 {% endif %}

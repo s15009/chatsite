@@ -127,7 +127,7 @@ function updateMessage() {
                 var messageDiv = $("<div></div>", {
                     'class': 'message'
                 });
-                messageDiv.append('<p>' + message.message + '</p>');
+                messageDiv.append('<li class="list-group-item my-2"><p>' + AutoLink(message.message) + '</p></li>');
 
                 // listのDOMに追加する
                 $('#message_list ul').prepend(messageDiv);
@@ -163,4 +163,14 @@ function updateMessage() {
 			console.log(res);	
 		});
 	}
+}
+
+// 文字列からURLを判別してaタグに変換する
+function AutoLink(str) {
+    var regexp_url = /((h?)(ttps?:\/\/[a-zA-Z0-9.\-_@:/~?%&;=+#',()*!]+))/g; // ']))/;
+    var regexp_makeLink = function(all, url, h, href) {
+        return '<a href="h' + href + '">' + url + '</a>';
+    }
+
+    return str.replace(regexp_url, regexp_makeLink);
 }

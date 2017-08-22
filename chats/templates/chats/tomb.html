@@ -33,7 +33,7 @@
             {% if comment_list %}
             {% for comment in comment_list %}
             <div class="comment">
-                <li class="list-group-item my-2">コメント: {{ comment.message | linebreaksbr }}</li>
+                <li class="list-group-item my-2">{{ comment.message | urlize | linebreaksbr }}</li>
             </div>
             {% endfor %}
             {% endif %}
