@@ -2,13 +2,21 @@ $(function() {
     // フォームの動き処理
     $('#text').on('click', function() {
         $('#submitBtn').show();
-        $('#text').prop('rows', 2);
+        if ($('#text').prop('rows') < 2) {
+            $('#text').prop('rows', 2);
+        }
     });
 
+    // テキストボックスに文字が入力されるとそれに合わせて行数を増やす
     $('#text').on('keyup', function() {
         var text = $('#text');
         if (text.val() == '') {
             $('#submitBtn').prop('disabled', true);
+
+            // 添付ファイルが有る場合は送信ボタンを表示する
+            if ($('#file').prop('files')[0]) {
+                $('#submitBtn').prop('disabled', false);
+            }
         }
         else {
             $('#submitBtn').prop('disabled', false);
@@ -23,12 +31,30 @@ $(function() {
         }
     });
 
-    $(document).on('click', function(e) {
-        if (!$.contains($('#messageForm')[0], e.target) && $('#text').val() == '') {
-            $('#submitBtn').hide();
-            $('#text').prop('rows', 1);
+    // 添付ファイルを付けると送信可能にする
+    $('#file').on('change', function(e) {
+        console.log('changed');
+        if (this.files[0]) {
+            console.log('file is aru');
+            $('#submitBtn').show();
+            $('#submitBtn').prop('disabled', false);
         }
     });
+
+    // フォーム以外をクリックするとフォームを縮小する
+    $(document).on('click', function(e) {
+        // テキストボックスが空の場合にテキストボックスを1行にする
+        if (!$.contains($('#messageForm')[0], e.target)
+                && $('#text').val() == '') {
+            $('#text').prop('rows', 1);
+
+            // 添付ファイルがない場合送信ボタンを消す
+            if ($('#file').prop('files')[0] == null) {
+                $('#submitBtn').hide();
+            }
+        }
+    });
+
 
     // 寿命のカウントダウン処理
     var timer = setInterval(function() {
@@ -124,13 +150,17 @@ function updateMessage() {
             // メッセージ要素の追加
             $.each(message_list, function(index, message) {
                 // メッセージ要素を生成
-                // <li class="list-group-item my-2"><p></p></li>
+                // 例) <li class="list-group-item my-2"><p></p><img></li>
                 var messageLi = $("<li></li>", {
                     'class': 'list-group-item my-2'
                 });
                 messageLi.append('<p>' + AutoLink(message.message) + '</p>');
+                // 画像添付があれば<img>要素を追加
                 if (message.image_url) {
-                    messageLi.append('<img src="'+ message.image_url + '">');
+                    messageLi.append($('<img>', {
+                        'src': message.image_url,
+                        'class': 'img-thumbnail',
+                    }));
                 }
 
                 // listのDOMに追加する

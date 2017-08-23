@@ -2,6 +2,8 @@
 
 {% block title %}{{ board.board_name }} || Time Bokan{% endblock %}
 
+{% block style %}{% load static %}<link rel="stylesheet" href="{% static 'chats/board.css' %}">{% endblock %}
+
 {% block account %}
 {% if user %}
 <div class="dropdown show">
@@ -18,39 +20,40 @@
 {% block content %}
 <div class="container">
     <div class="row">
-        <div id="user_info" class="col m-3" style="border: solid 2px #aaa">
+        <div id="user_info" class="col m-3 content-item">
             <p>{{ profile.username }}</p>
         </div>
-        <div id="message_list" class="col m-3" style="border: solid 2px #aaa; padding: 0;">
+        <div id="message_list" class="col-6 m-3 content-item">
             <form id="messageForm" method="post" action="{% url 'chats:post_message' board.id %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 <textarea id="text" name="text" cols="50" rows="1" required placeholder="今の気持は?"></textarea>
                 <br>
                 <input type="file" id="file" name="file">
-                <button id="submitBtn" disabled="true">送信</button>
+                <button id="submitBtn" disabled="true" style="display: none;">送信</button>
             </form>
             <ul class="list-group">
                 {% if message_list %}
                 {% for message in message_list %}
-                <li class="list-group-item my-2">
+                <li class="list-group-item my-2 message" style="orverflow-wrap: break-word; word-wrap: break-word;">
                     <p>{{ message.message | urlize | linebreaksbr }}</p>
                     {% if message.image %}
-                    <img src="{{ message.image.url }}">
+                    <img src="{{ message.image.url }}" class="img-thumbnail">
                     {% endif %}
                 </li>
                 {% endfor %}
                 {% endif %}
             </ul>
         </div>
-        <div id="board_info" class="col m-3" style="border: solid 2px #aaa">
-            <ul>
-                <li hidden></li>
-                <li id="timelimit">残り時間 : </li>
-                <li id="lifespan">寿命 : {{ board.lifespan }}秒</li>
-                <li id="board_pub_date">作成日時 : {{ board.get_display_pub_date }}</li>
-                <li id="login_users_counter">ユーザー数 : </li>
-                <li id="message_counter">総発言数 : {{ message_list.count }}</li>
-            </ul>
+        <div id="board_info" class="col m-3 content-item">
+            <div class="row">
+                <ul class="col">
+                    <li id="timelimit">残り時間 : </li>
+                    <li id="lifespan">寿命 : {{ board.lifespan }}秒</li>
+                    <li id="board_pub_date">作成日時 : {{ board.get_display_pub_date }}</li>
+                    <li id="login_users_counter">ユーザー数 : </li>
+                    <li id="message_counter">総発言数 : {{ message_list.count }}</li>
+                </ul>
+            </div>
         </div>
     </div>
     {% endblock %}
