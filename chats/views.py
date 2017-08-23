@@ -127,10 +127,12 @@ def get_message(request, board_id):
         for message in updated_message_list:
             # テキストのHTMLタグ変換
             message_text = message.message.replace('\n', '<br>')
+            image_url = message.image.url if message.image else None
             message_list.append({
                 'id': message.id,
                 'user_name': message.profile.username,
                 'message': message_text,
+                'image_url': image_url,
                 'pub_date': message.get_formated_pub_date()
                 })
             # チャット部屋情報
@@ -155,12 +157,16 @@ def post_message(request, board_id):
     '''メッセージをDBに追加
     '''
     if request.method == 'POST':
+        if request.FILES:
+            image = request.FILES['file']
+        else:
+            image = None
         board = Board.objects.get(id=request.POST.get('board_id'))
         user = Twitter.objects.get(id=request.POST.get('profile_id'))
         text = request.POST.get('text')
         pub_date = timezone.now()
 
-        mess = Message(board_id=board, profile=user, message=text, pub_date=pub_date)
+        mess = Message(board_id=board, profile=user, message=text, pub_date=pub_date, image=image)
         mess.save()
 
         return HttpResponse('successful', content_type="text/plain")

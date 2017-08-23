@@ -50,7 +50,11 @@ $(function() {
 
     // メッセージ送信ボタンクリック処理
     $('#messageForm').submit(function(e) {
-        $form = $('#messageForm');
+        var formData = new FormData();
+        formData.append('board_id', board_id);
+        formData.append('profile_id', profile_id);
+        formData.append('text', $('#text').val());
+        formData.append('file', $('#file').prop('files')[0]);
 
         // ページ更新防止
         e.preventDefault();
@@ -66,28 +70,24 @@ $(function() {
 
         // メッセージ送信
         $.ajax({
-            url: $form.attr('action'),
+            url: $('#messageForm').attr('action'),
             type: 'post',
-            data: {
-                board_id: board_id,
-                profile_id: profile_id,
-                text: $('#text').val(),
-            },
+            datatype: 'json',
+            cache: 'false',
+            processData: false,
+            contentType: false,
+            data: formData,
             timeout: 10000,
             beforeSend: function(xhr, settings) {
                 xhr.setRequestHeader('X-CSRFToken', $("input[name='csrfmiddlewaretoken']").val());
             },
         }).done(function(data, textStatus, jqXHR) {
-            var $data = $(data);
-
             // テキストフォームの初期化
             $('#text').val('');
             $('#submitBtn').prop('disabled', true);
             $('#text').prop('rows', 2);
 
             updateMessage();
-            $data.ready(function() {
-            });
         }).fail(function(jqXHR, testStatus, errorThrown) {
             // 投稿失敗
         });
@@ -124,13 +124,17 @@ function updateMessage() {
             // メッセージ要素の追加
             $.each(message_list, function(index, message) {
                 // メッセージ要素を生成
-                var messageDiv = $("<div></div>", {
-                    'class': 'message'
+                // <li class="list-group-item my-2"><p></p></li>
+                var messageLi = $("<li></li>", {
+                    'class': 'list-group-item my-2'
                 });
-                messageDiv.append('<li class="list-group-item my-2"><p>' + AutoLink(message.message) + '</p></li>');
+                messageLi.append('<p>' + AutoLink(message.message) + '</p>');
+                if (message.image_url) {
+                    messageLi.append('<img src="'+ message.image_url + '">');
+                }
 
                 // listのDOMに追加する
-                $('#message_list ul').prepend(messageDiv);
+                $('#message_list ul').prepend(messageLi);
             });
 
             // メッセージ数のカウントアップ
