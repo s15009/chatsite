@@ -22,6 +22,7 @@
     <div class="row">
         <div id="user_info" class="col m-3 content-item">
             <p>{{ profile.username }}</p>
+            <p>熱量{{ profile.get_vibes }}</p>
         </div>
         <div id="message_list" class="col-6 m-3 content-item">
             <form id="messageForm" method="post" action="{% url 'chats:post_message' board.id %}" enctype="multipart/form-data">
@@ -34,7 +35,8 @@
             <ul class="list-group">
                 {% if message_list %}
                 {% for message in message_list %}
-                <li class="list-group-item my-2 message" style="orverflow-wrap: break-word; word-wrap: break-word;">
+                <li class="list-group-item my-2 message">
+                    <input type="hidden" name="vibes" value="{{ message.vibes }}">
                     <p>{{ message.message | urlize | linebreaksbr }}</p>
                     {% if message.image %}
                     <img src="{{ message.image.url }}" class="img-thumbnail">

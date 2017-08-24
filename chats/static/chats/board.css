@@ -6,4 +6,6 @@
 .message {
     border: solid 2px #999;
     background-color: #f7f7f7;
+    orverflow-wrap: break-word;
+    word-wrap: break-word;
 }

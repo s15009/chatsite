@@ -1,4 +1,7 @@
 $(function() {
+    // メッセージ熱量処理
+    updateMessageVibes();
+
     // フォームの動き処理
     $('#text').on('click', function() {
         $('#submitBtn').show();
@@ -33,9 +36,7 @@ $(function() {
 
     // 添付ファイルを付けると送信可能にする
     $('#file').on('change', function(e) {
-        console.log('changed');
         if (this.files[0]) {
-            console.log('file is aru');
             $('#submitBtn').show();
             $('#submitBtn').prop('disabled', false);
         }
@@ -65,7 +66,6 @@ $(function() {
         // 寿命が-1になるとリダイレクトする
         if (timelimit <= 0) {
             clearInterval(timer);
-            console.log('timer : ' + timer);
             window.location.href = window.location.href;
         }
         $('#timelimit').text('残り時間 : ' + timelimit);
@@ -152,7 +152,7 @@ function updateMessage() {
                 // メッセージ要素を生成
                 // 例) <li class="list-group-item my-2"><p></p><img></li>
                 var messageLi = $("<li></li>", {
-                    'class': 'list-group-item my-2'
+                    'class': 'list-group-item my-2 message'
                 });
                 messageLi.append('<p>' + AutoLink(message.message) + '</p>');
                 // 画像添付があれば<img>要素を追加
@@ -162,6 +162,12 @@ function updateMessage() {
                         'class': 'img-thumbnail',
                     }));
                 }
+                // 熱量のメタデータ要素を追加
+                messageLi.append($('<input></input>', {
+                    'type': 'hidden',
+                    'name': 'vibes',
+                    'value': String(message.vibes),
+                }));
 
                 // listのDOMに追加する
                 $('#message_list ul').prepend(messageLi);
@@ -179,6 +185,9 @@ function updateMessage() {
         var login_users = res.data['login_users'];
         $login_users_counter = $('#login_users_counter');
         $login_users_counter.text('ユーザー数 : ' + login_users.length);
+
+        // 熱量更新
+        updateMessageVibes();
     });
 
 	function redirect(is_status) {	
@@ -197,6 +206,25 @@ function updateMessage() {
 			console.log(res);	
 		});
 	}
+}
+
+// メッセージの熱量に応じてメッセージの背景色を変更
+function updateMessageVibes() {
+    var message_list = $('.message');
+    $.each(message_list, function(index, message) {
+        var vibes = $(message).find('input[name="vibes"]').val();
+
+        if (vibes > 0) {
+            if (vibes < 10) {
+                //vibes = '0' + vibes;
+            }
+            var color = '#' + vibes + '00';
+            $(message).animate({
+                'fontSize': '2em',
+                'color': color,
+            }, 1000);
+        }
+    });
 }
 
 // 文字列からURLを判別してaタグに変換する

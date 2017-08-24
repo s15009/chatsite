@@ -133,6 +133,7 @@ def get_message(request, board_id):
                 'user_name': message.profile.username,
                 'message': message_text,
                 'image_url': image_url,
+                'vibes': message.vibes,
                 'pub_date': message.get_formated_pub_date()
                 })
             # チャット部屋情報
@@ -165,8 +166,9 @@ def post_message(request, board_id):
         user = Twitter.objects.get(id=request.POST.get('profile_id'))
         text = request.POST.get('text')
         pub_date = timezone.now()
+        vibes = user.get_vibes()
 
-        mess = Message(board_id=board, profile=user, message=text, pub_date=pub_date, image=image)
+        mess = Message(board_id=board, profile=user, message=text, pub_date=pub_date, image=image, vibes=vibes)
         mess.save()
 
         return HttpResponse('successful', content_type="text/plain")

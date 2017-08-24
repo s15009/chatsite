@@ -50,6 +50,7 @@ class Message(models.Model):
     message = models.CharField(max_length=200)
     pub_date = models.DateTimeField('date publish')
     image = models.ImageField(upload_to='images/', null=True, default=None)
+    vibes = models.IntegerField(default=0)
 
     def get_formated_pub_date(self):
         jptime = self.pub_date + timedelta(hours = 9)
