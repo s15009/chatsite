@@ -1,28 +1,43 @@
-<!DOCTYPE html>
-<html lang="ja">
-    <head>
-        <title>{{ board.board_name }}の跡地</title>
-        <meta charset="UTF-8">
-        {% load static %} 
-        <link rel="stylesheet" type="text/css" href="{% static 'chats/tomb.css'  %}">
-    </head>
-    <body>
-        <h1>{{ board.board_name }}の跡地</h1>    
-        
-        <div id="comment_list">
-            <h2>歴史</h2>
-            <p>{{ board.get_display_pub_date  }} 〜 {{ board.get_display_dead_time }}</p>
-            <ul>
-            {% if comment_list %}
-                {% for comment in comment_list %}
-                    <div class="comment">
-                        <li>コメント: {{ comment.message | linebreaksbr }}</li>
-                    </div>
-                {% endfor %}
-            {% endif %}
-            </ul>
-        </div>
+{% extends "chats/base.html" %}
 
-        
-    </body>
-</html>
+{% block title %}{{ board.board_name }}の跡地 || Time Bokan{% endblock %}
+
+{% block account %}
+{% if user %}
+<div class="dropdown show">
+    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        {{ user.username }}
+    </a>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+        <a class="dropdown-item" href="{% url 'twitter:logout' %}" value="Logout">ログアウト</a>
+    </div>
+</div>
+{% else %}
+<li class="nav-item">
+    <a class="nav-link btn btn-primary" href="{% url 'twitter:new' %}" value="Create Account" role="button">ユーザー登録</a>
+</li>
+<li>
+    <a class="nav-link btn btn-primary" href="{% url 'twitter:login' %}" value="Login" role="button">ログイン</a>
+</li>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>{{ board.board_name }}の跡地</h1>    
+
+    <div id="comment_list" class="jumbotron">
+        <h2>歴史</h2>
+        <p>{{ board.get_display_pub_date  }} 〜 {{ board.get_display_dead_time }}</p>
+        <ul class="list-group">
+            {% if comment_list %}
+            {% for comment in comment_list %}
+            <div class="comment">
+                <li class="list-group-item my-2">{{ comment.message | urlize | linebreaksbr }}</li>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

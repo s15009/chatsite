@@ -1,0 +1,20 @@
+{% extends "chats/base.html" %}
+
+{% block title %}ログアウト{% endblock %}
+
+{% block account %}
+<li class="nav-item">
+    <a class="nav-link btn btn-primary" href="{% url 'twitter:new' %}" value="Create Account" role="button">ユーザー登録</a>
+</li>
+<li>
+    <a class="nav-link btn btn-primary" href="{% url 'twitter:login' %}" value="Login" role="button">ログイン</a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="jumbotron">
+        <h1>ログアウトしました</h1>
+    </div>
+</div>
+{% endblock %}

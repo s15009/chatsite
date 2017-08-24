@@ -1,18 +1,27 @@
-<form method="post" action="{% url 'twitter:login' %}">
-{% csrf_token %}
-<table>
-<tr>
-    <td>{{ form.username.label_tag }}</td>
-    <td>{{ form.username }}</td>
-</tr>
-<tr>
-    <td>{{ form.password.label_tag }}</td>
-    <td>{{ form.password }}</td>
-</tr>
-</table>
+{% extends "chats/base.html" %}
 
-<input type="submit" value="login" />
-<input type="hidden" name="next" value="{{ next }}" />
-</form>
+{% block title %}ログイン{% endblock %}
 
-<button type="button" onclick="location.href='{% url 'social:begin' 'twitter' %}'">Twitter</button>
+{% block account %}
+<li class="nav-item">
+    <a class="nav-link btn btn-primary" href="{% url 'twitter:new' %}" value="Create Account" role="button">ユーザー登録</a>
+</li>
+<li>
+    <a class="nav-link btn btn-primary" href="{% url 'twitter:login' %}" value="Login" role="button">ログイン</a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% load bootstrap %}
+    <form class="form-horizontal" method="post" action="{% url 'twitter:login' %}" role="form">
+        <legend>ログイン</legend>
+        {% csrf_token %}
+        {{ form|bootstrap_horizontal }}
+        <div class="form-group">
+            <input type="submit" value="ログイン">
+            <input type="hidden" name="next" value="{{ next }}">
+        </div>
+    </form>
+</div>
+{% endblock %}

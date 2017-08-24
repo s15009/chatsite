@@ -4,6 +4,7 @@ __pycache__
 db.sqlite3
 settings_local.py
 migrations
+/media/images/*
 
 
 # Elastic Beanstalk Files

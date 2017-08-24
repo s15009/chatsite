@@ -1,59 +1,69 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ board.board_name }}</title>
-    {% load static %}
-    <link rel="stylesheet" type='text/css' href="{% static 'chats/style.css' %}">
-</head>
-<body>
-    <header class="head">
-        <p class="title_logo">Time Bokan</p>
-        <p class="board_name">{{ board.board_name }}</p>
-        <p class="user_name">{{ profile.username }}</p>
-    </header>
+{% extends "chats/base.html" %}
 
-    <div id="main">
-        <div id="user_info">
+{% block title %}{{ board.board_name }} || Time Bokan{% endblock %}
+
+{% block style %}{% load static %}<link rel="stylesheet" href="{% static 'chats/board.css' %}">{% endblock %}
+
+{% block account %}
+{% if user %}
+<div class="dropdown show">
+    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        {{ user.username }}
+    </a>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+        <a class="dropdown-item" href="{% url 'twitter:logout' %}" value="Logout">ログアウト</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div id="user_info" class="col m-3 content-item">
             <p>{{ profile.username }}</p>
+            <p>熱量{{ profile.get_vibes }}</p>
         </div>
-        <div id="message_list">
-            <form id="messageForm" method="post" action="{% url 'chats:post_message' board.id %}">
+        <div id="message_list" class="col-6 m-3 content-item">
+            <form id="messageForm" method="post" action="{% url 'chats:post_message' board.id %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 <textarea id="text" name="text" cols="50" rows="1" required placeholder="今の気持は?"></textarea>
                 <br>
-                <button id="submitBtn" disabled="true">送信</button>
+                <input type="file" id="file" name="file">
+                <button id="submitBtn" disabled="true" style="display: none;">送信</button>
             </form>
-            <ul>
+            <ul class="list-group">
                 {% if message_list %}
-                    {% for message in message_list %}
-                    <div class='message'>
-                        <p>{{ message.message | linebreaksbr }}</p>
-                        <input type="hidden" name="hate" value="{{ message.message_hate }}" />
-                        <input type="hidden" name="id" value="{{ message.id }}" />
-                    </div>
-                    {% endfor %}
+                {% for message in message_list %}
+                <li class="list-group-item my-2 message">
+                    <input type="hidden" name="vibes" value="{{ message.vibes }}">
+					<input type="hidden" name="hate" value="{{ message.message_hate }}" />
+                    <input type="hidden" name="id" value="{{ message.id }}" />
+                    <p>{{ message.message | urlize | linebreaksbr }}</p>
+					{% if message.image %}
+                    <img src="{{ message.image.url }}" class="img-thumbnail">
+                    {% endif %}
+                </li>
+                {% endfor %}
                 {% endif %}
             </ul>
         </div>
-        <div id="board_info">
-            <ul>
-                <li id="now_date">現在時間 : </li>
-                <li id="board_pub_date">作成時間 : {{ board.get_display_pub_date }}</li>
-                <li id="elapsed_time">経過時間 : </li>
-                <li id="lifespan">寿命 : {{ board.lifespan }}秒</li>
-                <li id="login_users_counter">ユーザー数 : </li>
-                <li id="message_counter">総発言数 : {{ message_list.count }}</li>
-            </ul>
+        <div id="board_info" class="col m-3 content-item">
+            <div class="row">
+                <ul class="col">
+                    <li id="timelimit">残り時間 : </li>
+                    <li id="lifespan">寿命 : {{ board.lifespan }}秒</li>
+                    <li id="board_pub_date">作成日時 : {{ board.get_display_pub_date }}</li>
+                    <li id="login_users_counter">ユーザー数 : </li>
+                    <li id="message_counter">総発言数 : {{ message_list.count }}</li>
+                </ul>
+            </div>
         </div>
     </div>
-    <footer>
-    </footer>
+    {% endblock %}
 
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
-        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-        crossorigin="anonymous">
-    </script>
+    {% block script %}
+    {% load static %}
     <script type="text/javascript" src="{% static 'chats/main.js' %}"></script>
     <script type="text/javascript">
         var board_id = {{ board.id }};
@@ -64,7 +74,6 @@
         var latest_message_id = String('{{ message_list.0.id }}');
         var message_counter_num = {{ message_list.count }};
         var hates = {};
-
     </script>
-</body>
-</html>
+</div>
+{% endblock %}

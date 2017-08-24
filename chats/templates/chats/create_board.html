@@ -1,7 +1,30 @@
-<form action="{% url 'chats:create_board' %}" method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Submit" />
-</form>
-{% load static %}
-<link rel="stylesheet" type='text/css' href="{% static 'chats/style.css' %}">
+{% extends "chats/base.html" %}
+
+{% block title %}ルーム作成{% endblock %}
+
+{% block account %}
+{% if user %}
+<div class="dropdown show">
+    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        {{ user.username }}
+    </a>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+        <a class="dropdown-item" href="{% url 'twitter:logout' %}" value="Logout">ログアウト</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% load bootstrap %}
+    <form class="form-horizontal" method="post" action="{% url 'chats:create_board' %}" role="form">
+        <legend>ルーム作成</legend>
+        {% csrf_token %}
+        {{ form|bootstrap_horizontal }}
+        <div class="form-group">
+            <input type="submit" value="作成">
+        </div>
+    </form>
+</div>
+{% endblock %}

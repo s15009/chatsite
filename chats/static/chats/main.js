@@ -1,15 +1,25 @@
 $(function() {
+    // メッセージ熱量処理
+    updateMessageVibes();
 
     // フォームの動き処理
     $('#text').on('click', function() {
         $('#submitBtn').show();
-        $('#text').prop('rows', 2);
+        if ($('#text').prop('rows') < 2) {
+            $('#text').prop('rows', 2);
+        }
     });
 
+    // テキストボックスに文字が入力されるとそれに合わせて行数を増やす
     $('#text').on('keyup', function() {
         var text = $('#text');
         if (text.val() == '') {
             $('#submitBtn').prop('disabled', true);
+
+            // 添付ファイルが有る場合は送信ボタンを表示する
+            if ($('#file').prop('files')[0]) {
+                $('#submitBtn').prop('disabled', false);
+            }
         }
         else {
             $('#submitBtn').prop('disabled', false);
@@ -24,28 +34,41 @@ $(function() {
         }
     });
 
-    $(document).on('click', function(e) {
-        if (!$.contains($('#messageForm')[0], e.target) && $('#text').val() == '') {
-            $('#submitBtn').hide();
-            $('#text').prop('rows', 1);
+    // 添付ファイルを付けると送信可能にする
+    $('#file').on('change', function(e) {
+        if (this.files[0]) {
+            $('#submitBtn').show();
+            $('#submitBtn').prop('disabled', false);
         }
     });
 
-    // 現在時刻
-    var now = new Date();
-    formated_now = 
-        now.getFullYear() + '-' + 
-        (now.getMonth() + 1) + '-' + 
-        now.getDate() + ' ' + 
-        now.getHours() + ':' + 
-        now.getMinutes() + ':' + 
-        now.getSeconds();
-    $('#now_date').text('現在時間 : ' + formated_now);
+    // フォーム以外をクリックするとフォームを縮小する
+    $(document).on('click', function(e) {
+        // テキストボックスが空の場合にテキストボックスを1行にする
+        if (!$.contains($('#messageForm')[0], e.target)
+                && $('#text').val() == '') {
+            $('#text').prop('rows', 1);
 
+            // 添付ファイルがない場合送信ボタンを消す
+            if ($('#file').prop('files')[0] == null) {
+                $('#submitBtn').hide();
+            }
+        }
+    });
+
+
+    // 寿命のカウントダウン処理
     var timer = setInterval(function() {
         var b_pub_date = new Date(board_pub_date.slice(0, -9));
         var elapsed_time = (Date.now() - b_pub_date) / 1000;
-        $('#elapsed_time').text('経過時間 : ' + Math.floor(elapsed_time));
+        var timelimit = (board_lifespan - Math.floor(elapsed_time));
+
+        // 寿命が-1になるとリダイレクトする
+        if (timelimit <= 0) {
+            clearInterval(timer);
+            window.location.href = window.location.href;
+        }
+        $('#timelimit').text('残り時間 : ' + timelimit);
     }, 100);
 
     // 定期処理
@@ -61,7 +84,11 @@ $(function() {
 
     // メッセージ送信ボタンクリック処理
     $('#messageForm').submit(function(e) {
-        $form = $('#messageForm');
+        var formData = new FormData();
+        formData.append('board_id', board_id);
+        formData.append('profile_id', profile_id);
+        formData.append('text', $('#text').val());
+        formData.append('file', $('#file').prop('files')[0]);
 
         // ページ更新防止
         e.preventDefault();
@@ -77,28 +104,24 @@ $(function() {
 
         // メッセージ送信
         $.ajax({
-            url: $form.attr('action'),
+            url: $('#messageForm').attr('action'),
             type: 'post',
-            data: {
-                board_id: board_id,
-                profile_id: profile_id,
-                text: $('#text').val(),
-            },
+            datatype: 'json',
+            cache: 'false',
+            processData: false,
+            contentType: false,
+            data: formData,
             timeout: 10000,
             beforeSend: function(xhr, settings) {
                 xhr.setRequestHeader('X-CSRFToken', $("input[name='csrfmiddlewaretoken']").val());
             },
         }).done(function(data, textStatus, jqXHR) {
-            var $data = $(data);
-
             // テキストフォームの初期化
             $('#text').val('');
             $('#submitBtn').prop('disabled', true);
             $('#text').prop('rows', 2);
 
             updateMessage();
-            $data.ready(function() {
-            });
         }).fail(function(jqXHR, testStatus, errorThrown) {
             // 投稿失敗
         });
@@ -135,16 +158,27 @@ function updateMessage() {
 
             // メッセージ要素の追加
             $.each(message_list, function(index, message) {
-                // メッセージ要素を生成
-                var messageDiv = $("<div></div>", {
-                    'class': 'message',
+                // 例) <li class="list-group-item my-2"><p></p><img></li>
+                var messageLi = $("<li></li>", {
+                    'class': 'list-group-item my-2 message'
                 });
-                messageDiv.append('<p>' + message.message + '</p>');
-				messageDiv.append('<input type="hidden" value="' + message.message_hate + '"/>');
-				messageDiv.append('<input type="hidden" value="' + message.id + '"/>');
-				
-				//クリックイベント追加
-				messageDiv.on("click", function(){
+                messageLi.append('<p>' + AutoLink(message.message) + '</p>');
+                // 画像添付があれば<img>要素を追加
+                if (message.image_url) {
+                    messageLi.append($('<img>', {
+                        'src': message.image_url,
+                        'class': 'img-thumbnail',
+                    }));
+                }
+                // 熱量のメタデータ要素を追加
+                messageLi.append($('<input></input>', {
+                    'type': 'hidden',
+                    'name': 'vibes',
+                    'value': String(message.vibes),
+                }));
+				messageLi.append('<input type="hidden" name="hate" value="' + message.message_hate + '"/>');
+				messageLi.append('<input type="hidden" name="id" value="' + message.id + '"/>');
+				messageLi.on("click", function(){
 					hate = $(this).children("input[name=id]").val();
 					if(!hates[hate]){
 						hates[hate] = 1; 
@@ -154,7 +188,7 @@ function updateMessage() {
 				});	
 
                 // listのDOMに追加する
-                $('#message_list ul').prepend(messageDiv);
+                $('#message_list ul').prepend(messageLi);
             });
             
             // メッセージ数のカウントアップ
@@ -186,8 +220,12 @@ function updateMessage() {
         var login_users = res.data['login_users'];
         $login_users_counter = $('#login_users_counter');
         $login_users_counter.text('ユーザー数 : ' + login_users.length);
+
+        // 熱量更新
+        updateMessageVibes();
     });
 }
+
 //既に存在するメッセージにクリックイべ追加
 $('.message').on('click', function(){
 	hate = $(this).children("input[name=id]").val();
@@ -197,3 +235,32 @@ $('.message').on('click', function(){
 			hates[hate] += 1;
 		}
 });
+
+// メッセージの熱量に応じてメッセージの背景色を変更
+function updateMessageVibes() {
+    var message_list = $('.message');
+    $.each(message_list, function(index, message) {
+        var vibes = $(message).find('input[name="vibes"]').val();
+
+        if (vibes > 0) {
+            if (vibes < 10) {
+                //vibes = '0' + vibes;
+            }
+            var color = '#' + vibes + '00';
+            $(message).animate({
+                'fontSize': '2em',
+                'color': color,
+            }, 1000);
+        }
+    });
+}
+
+// 文字列からURLを判別してaタグに変換する
+function AutoLink(str) {
+    var regexp_url = /((h?)(ttps?:\/\/[a-zA-Z0-9.\-_@:/~?%&;=+#',()*!]+))/g; // ']))/;
+    var regexp_makeLink = function(all, url, h, href) {
+        return '<a href="h' + href + '">' + url + '</a>';
+    }
+
+    return str.replace(regexp_url, regexp_makeLink);
+}

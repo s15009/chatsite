@@ -17,17 +17,23 @@ from datetime import datetime
 from django.urls import reverse
 
 
-#@method_decorator(login_required, name='dispatch')
-class IndexView(generic.ListView):
+def index(request):
     """
-    チャット部屋のリスト表示
-    暫定でのもの
+    サイトのトップページ
+    チャット部屋のリストを表示
     """
-    template_name = 'chats/index.html'
-    context_object_name = 'latest_board_list'
+    latest_board_list = Board.objects.order_by('-pub_date')[:10]
+    user = request.user
+    if not user.is_authenticated:
+        user = None
+    print('user :', user)
 
-    def get_queryset(self):
-        return Board.objects.order_by('-pub_date')
+    context = {
+            'latest_board_list': latest_board_list,
+            'user': user
+    }
+
+    return render(request, 'chats/index.html', context)
 
 
 @login_required
@@ -45,7 +51,13 @@ def create_board(request):
     else:
         form = BoardForm()
 
-    return render(request, 'chats/create_board.html', {'form': form})
+    user = request.user
+    context = {
+            'form': form,
+            'user': user
+    }
+
+    return render(request, 'chats/create_board.html', context)
 
 
 @login_required
@@ -125,12 +137,16 @@ def get_message(request, board_id):
         for message in updated_message_list:
             # テキストのHTMLタグ変換
             message_text = message.message.replace('\n', '<br>')
+            image_url = message.image.url if message.image else None
             message_list.append({
                 'id': message.id,
                 'user_name': message.profile.username,
                 'message': message_text,
                 'pub_date': message.get_formated_pub_date(),
-				'message_hate': message.message_hate
+				'message_hate': message.message_hate,
+                'image_url': image_url,
+                'vibes': message.vibes,
+                'pub_date': message.get_formated_pub_date()
                 })
             hates[message.id] = message.message_hate
 
@@ -156,12 +172,17 @@ def post_message(request, board_id):
     '''メッセージをDBに追加
     '''
     if request.method == 'POST':
+        if request.FILES:
+            image = request.FILES['file']
+        else:
+            image = None
         board = Board.objects.get(id=request.POST.get('board_id'))
         user = Twitter.objects.get(id=request.POST.get('profile_id'))
         text = request.POST.get('text')
         pub_date = timezone.now()
+        vibes = user.get_vibes()
 
-        mess = Message(board_id=board, profile=user, message=text, pub_date=pub_date)
+        mess = Message(board_id=board, profile=user, message=text, pub_date=pub_date, image=image, vibes=vibes)
         mess.save()
 
         return HttpResponse('successful', content_type="text/plain")

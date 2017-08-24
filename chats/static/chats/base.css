@@ -1,0 +1,29 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    margin: 0;
+    border-bottom: 2px solid black;
+    box-shadow: 0px 2px 5px;
+}
+
+.home_btn {
+    margin: 8px 0px 8px 10px;
+    font-size: 1.1em;
+}
+
+.site_logo {
+    margin: 8px 0px 8px 0px;
+    font-size: 1.5em;
+    font-weight: 900;
+    color: rgb(255,134,147);
+    text-shadow: 3px 3px black;
+}
+
+.user_name {
+    margin: 8px 10px;
+}
