@@ -27,7 +27,7 @@
         <div id="message_list" class="col-6 m-3 content-item">
             <form id="messageForm" method="post" action="{% url 'chats:post_message' board.id %}" enctype="multipart/form-data">
                 {% csrf_token %}
-                <textarea id="text" name="text" cols="50" rows="1" required placeholder="今の気持は?"></textarea>
+                <textarea id="text" name="text" cols="50" rows="1" placeholder="今の気持は?"></textarea>
                 <br>
                 <input type="file" id="file" name="file">
                 <button id="submitBtn" disabled="true" style="display: none;">送信</button>

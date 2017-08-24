@@ -120,6 +120,7 @@ $(function() {
             $('#text').val('');
             $('#submitBtn').prop('disabled', true);
             $('#text').prop('rows', 2);
+            $('#file').val('');
 
             updateMessage();
         }).fail(function(jqXHR, testStatus, errorThrown) {
