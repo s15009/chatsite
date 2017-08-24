@@ -49,6 +49,7 @@ class Message(models.Model):
     profile = models.ForeignKey(Twitter)
     message = models.CharField(max_length=200)
     pub_date = models.DateTimeField('date publish')
+    message_hate = models.IntegerField(default=0)
 
     def get_formated_pub_date(self):
         jptime = self.pub_date + timedelta(hours = 9)

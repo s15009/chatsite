@@ -27,7 +27,7 @@ class IndexView(generic.ListView):
     context_object_name = 'latest_board_list'
 
     def get_queryset(self):
-        return Board.objects.order_by('-pub_date')[:10]
+        return Board.objects.order_by('-pub_date')
 
 
 @login_required
@@ -71,8 +71,8 @@ def board(request, board_id):
         board.login_users.add(profile)
         print('{}は{}にログインしました'.format(profile.username, board.board_name))
 
-
-    message_list = Message.objects.filter(board_id__id=board_id).order_by('-pub_date')
+	# メッセージ取得、ヘイトがあるのは除く
+    message_list = Message.objects.filter(board_id__id=board_id).exclude(message_hate__gt=100).order_by('-pub_date')[:10]
 
     context = {'message_list': message_list, 'board': board, 'profile': profile, 'login_users': login_users}
     return render(request, 'chats/board.html', context)
@@ -96,6 +96,14 @@ def get_message(request, board_id):
     if request.method == 'POST':
         latest_message_id = request.POST.get('latest_message_id')
         lmpdt = request.POST.get('latest_message_pub_date')
+        hates = json.loads(request.POST.get('hates'))
+
+		#クリック時の削除ステータス更新
+        for target in hates:
+            mess = Message.objects.get(id=target)
+            mess.message_hate += hates[target]
+            mess.save()
+            hates[target] = mess.message_hate
 
         updated_message_list = []
         if latest_message_id and lmpdt:
@@ -104,10 +112,12 @@ def get_message(request, board_id):
             updated_message_list = Message.objects\
                     .filter(board_id__id=board_id)\
                     .filter(pub_date__gt=latest_message_pub_date)\
-                    .exclude(id=latest_message_id)
+                    .exclude(id=latest_message_id)\
+					.exclude(message_hate__gt=10)
         else:
             updated_message_list = Message.objects.filter(board_id__id=board_id)
 
+		# update_messageがあれば表示するためのリストを作る
         # Jsonへの変換
         board = Board.objects.get(id=board_id)
         # 更新分投稿リスト
@@ -119,8 +129,11 @@ def get_message(request, board_id):
                 'id': message.id,
                 'user_name': message.profile.username,
                 'message': message_text,
-                'pub_date': message.get_formated_pub_date()
+                'pub_date': message.get_formated_pub_date(),
+				'message_hate': message.message_hate
                 })
+            hates[message.id] = message.message_hate
+
             # チャット部屋情報
         board_info = {
                'board_name': board.board_name,
@@ -133,7 +146,7 @@ def get_message(request, board_id):
                 'user_name': login_user.username
                 })
 
-            data = {'message_list': message_list, 'board_info': board_info, 'login_users': login_users}
+        data = {'message_list': message_list, 'board_info': board_info, 'login_users': login_users, 'message_hate': hates}
         return JsonResponse({'data': data}, safe=False)
 
     return HttpResponse('failed', content_type='text/plain')
