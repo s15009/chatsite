@@ -74,6 +74,14 @@ $(function() {
     // 定期処理
     var check = setInterval('updateMessage()', 3000);
 
+    // 読み込まれた時メッセージリストのid ヘイトのオブジェクト
+    $(document).ready(function(){
+        $('.message').each(function(i){
+            hates[$(this).children('input[name=id]').val()]
+                = parseInt($(this).children('input[name=hate]').val());
+        }); 
+    });
+
     // メッセージ送信ボタンクリック処理
     $('#messageForm').submit(function(e) {
         var formData = new FormData();
@@ -129,7 +137,8 @@ function updateMessage() {
         dateType: 'JSON',
         cache: 'false',
         data: {latest_message_pub_date: latest_message_pub_date,
-                latest_message_id: latest_message_id},
+                latest_message_id: latest_message_id,
+				hates: JSON.stringify(hates)},
         beforeSend: function(xhr, settings) {
             xhr.setRequestHeader('X-CSRFToken', $("input[name='csrfmiddlewaretoken']").val());
         },
@@ -138,18 +147,17 @@ function updateMessage() {
         if (res.data['is_alive'] == false) {
             window.location.href = window.location.href;
         }
-
+        
         // メッセージリスト更新処理
         var message_list = res.data['message_list'];
         if (message_list.length > 0) {
             // 最新メッセージ情報の更新
             latest_message = message_list[message_list.length - 1];
-            latest_message_pub_date = latest_message.pub_date
+            latest_message_pub_date = latest_message.pub_date;
             latest_message_id = latest_message.id;
 
             // メッセージ要素の追加
             $.each(message_list, function(index, message) {
-                // メッセージ要素を生成
                 // 例) <li class="list-group-item my-2"><p></p><img></li>
                 var messageLi = $("<li></li>", {
                     'class': 'list-group-item my-2 message'
@@ -168,18 +176,45 @@ function updateMessage() {
                     'name': 'vibes',
                     'value': String(message.vibes),
                 }));
+				messageLi.append('<input type="hidden" name="hate" value="' + message.message_hate + '"/>');
+				messageLi.append('<input type="hidden" name="id" value="' + message.id + '"/>');
+				messageLi.on("click", function(){
+					hate = $(this).children("input[name=id]").val();
+					if(!hates[hate]){
+						hates[hate] = 1; 
+					} else {
+						hates[hate] += 1;
+					}
+				});	
 
                 // listのDOMに追加する
                 $('#message_list ul').prepend(messageLi);
             });
-
+            
             // メッセージ数のカウントアップ
             message_counter_num += message_list.length;
             $('#message_counter').text('総発言数 : ' + message_counter_num);
         }
-
+        
         // チャット部屋情報更新処理
         var board_info = res.data['board_info'];
+
+        // ヘイトの更新
+        var message_hate = res.data['message_hate'];
+        $('.message').each(function(i){
+            id = $(this).children("input[name=id]").val();
+            $(this).children("input[name=hate]").val(message_hate[id]);
+            hate = $(this).children("input[name=hate]").val();
+            if(hate > 10){
+                $(this).remove();
+            }
+        });
+        
+        //ヘイト初期化
+        for(var value in message_hate){
+            message_hate[value] = 0;
+        }
+        hates = message_hate; 
 
         // ログインユーザー更新処理
         var login_users = res.data['login_users'];
@@ -189,24 +224,17 @@ function updateMessage() {
         // 熱量更新
         updateMessageVibes();
     });
-
-	function redirect(is_status) {	
-		$.ajax({
-			url: window.location.href + 'status',
-			type:'post',	
-			cache:'false',
-			datatype: 'JSON',
-            data:{
-                is_status: is_status
-            },
-			beforeSend: function(xhr, settings) {
-				xhr.setRequestHeader('X-CSRFToken', $("input[name='csrfmiddlewaretoken']").val());
-			},
-		}).done(function(res) {
-			console.log(res);	
-		});
-	}
 }
+
+//既に存在するメッセージにクリックイべ追加
+$('.message').on('click', function(){
+	hate = $(this).children("input[name=id]").val();
+		if(!hates[hate]){
+			hates[hate] = 1; 
+		} else {
+			hates[hate] += 1;
+		}
+});
 
 // メッセージの熱量に応じてメッセージの背景色を変更
 function updateMessageVibes() {

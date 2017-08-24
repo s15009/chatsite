@@ -37,8 +37,10 @@
                 {% for message in message_list %}
                 <li class="list-group-item my-2 message">
                     <input type="hidden" name="vibes" value="{{ message.vibes }}">
+					<input type="hidden" name="hate" value="{{ message.message_hate }}" />
+                    <input type="hidden" name="id" value="{{ message.id }}" />
                     <p>{{ message.message | urlize | linebreaksbr }}</p>
-                    {% if message.image %}
+					{% if message.image %}
                     <img src="{{ message.image.url }}" class="img-thumbnail">
                     {% endif %}
                 </li>
@@ -64,13 +66,14 @@
     {% load static %}
     <script type="text/javascript" src="{% static 'chats/main.js' %}"></script>
     <script type="text/javascript">
-var board_id = {{ board.id }};
-var board_pub_date = String('{{ board.get_formated_pub_date }}');
-var board_lifespan = {{ board.lifespan }};
-var profile_id = {{ profile.id }};
-var latest_message_pub_date = String('{{ message_list.0.get_formated_pub_date}}');
-var latest_message_id = String('{{ message_list.0.id }}');
-var message_counter_num = {{ message_list.count }};
+        var board_id = {{ board.id }};
+        var board_pub_date = String('{{ board.get_formated_pub_date }}');
+        var board_lifespan = {{ board.lifespan }};
+        var profile_id = {{ profile.id }};
+        var latest_message_pub_date = String('{{ message_list.0.get_formated_pub_date}}');
+        var latest_message_id = String('{{ message_list.0.id }}');
+        var message_counter_num = {{ message_list.count }};
+        var hates = {};
     </script>
 </div>
 {% endblock %}
