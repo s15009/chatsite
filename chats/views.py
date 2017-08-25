@@ -198,10 +198,23 @@ def post_message(request, board_id):
         pub_date = timezone.now()
         vibes = user.get_vibes()
 
-        mess = Message(board_id=board, profile=user, message=text, pub_date=pub_date, image=image, vibes=vibes)
-        mess.save()
+        message = Message(board_id=board, profile=user, message=text, pub_date=pub_date, image=image, vibes=vibes)
+        message.save()
 
-        return HttpResponse('successful', content_type="text/plain")
+        image_url = message.image.url if message.image else None
+        mess = {
+            'id': message.id,
+            'image_url': image_url,
+            'vibes': message.vibes,
+            'pub_date': message.get_formated_pub_date(),
+        }
+
+        data = {
+            'message': mess,
+        }
+
+        return JsonResponse({'data': data}, safe=False)
+        #return HttpResponse('successful', content_type="text/plain")
 
     return HttpResponse('failed', content_type='text/plain')
 

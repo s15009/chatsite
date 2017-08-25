@@ -83,25 +83,18 @@ $(function() {
 
     // メッセージ送信ボタンクリック処理
     $('#messageForm').submit(function(e) {
+        console.log('ボタン押下');
         var formData = new FormData();
         formData.append('board_id', board_id);
         formData.append('profile_id', profile_id);
         formData.append('text', $('#text').val());
         formData.append('file', $('#file').prop('files')[0]);
 
-        // ページ更新防止
+        // submitクリック時のページ更新防止
         e.preventDefault();
 
-        // 2重クリック防止
-        /*
-        var self = this;
-        $(':submit', self).prop('disabled', true);
-        setTimeout(function() {
-            $(':submit', self).prop('disabled', false);
-        }, 1000);
-        */
-
         // メッセージ送信
+        console.log('送信');
         $.ajax({
             url: $('#messageForm').attr('action'),
             type: 'post',
@@ -114,15 +107,31 @@ $(function() {
             beforeSend: function(xhr, settings) {
                 xhr.setRequestHeader('X-CSRFToken', $("input[name='csrfmiddlewaretoken']").val());
             },
-        }).done(function(data, textStatus, jqXHR) {
+        }).done(function(res, textStatus, jqXHR) {
+            console.log('送信完了');
+            // 投稿メッセージ要素を追加
+            var message = new Message(
+                parseInt(res.data['message'].id),
+                $('#text').val(),
+                res.data['message'].image_url,
+                parseInt(res.data['message'].vibes),
+                0
+            );
+            $('#message_list ul').prepend(createMessageLi(message));
+
+            // 最新メッセージ情報の更新
+            latest_message_pub_date = res.data['message'].pub_date;
+            latest_message_id = message.id;
+
+            // 投稿メッセージのスタイル更新
+            updateMessageVibes();
+
             // テキストフォームの初期化
             var text = $('#text');
             text.val('');
             text.prop('rows', 2);
             $('#submitBtn').prop('disabled', true);
             $('#file').val('');
-
-            updateMessage();
         }).fail(function(jqXHR, testStatus, errorThrown) {
             // 投稿失敗
         });
@@ -243,10 +252,73 @@ $('.message').on('click', function(){
 		}
 });
 
+// メッセージクラス
+class Message {
+    constructor(id, message, image_url, vibes, message_hate) {
+        this.id = id;
+        this.message = message;
+        this.image_url = image_url;
+        this.vibes = vibes;
+        this.message_hate = message_hate;
+    }
+}
+
+// メッセージ<li>要素の生成
+// 返り値が<li>要素なので好きな<ul>に追加してね
+function createMessageLi(message) {
+    // 例) <li class="list-group-item my-2"><p></p><img></li>
+    var messageLi = $('<li></li>', {
+        'class': 'list-group-item my-2 message',
+    });
+
+    // テキスト要素を追加
+    messageLi.append('<p>' + AutoLink(message.message) + '</p>');
+
+    // 画像添付があれば<img>要素を追加
+    if (message.image_url) {
+        messageLi.append($('<img>', {
+            'src': message.image_url,
+            'class': 'img-thumbnail',
+        }));
+    }
+
+    // 熱量のメタデータ要素を追加
+    messageLi.append($('<input></input>', {
+        'type': 'hidden',
+        'name': 'vibes',
+        'value': String(message.vibes),
+    }));
+
+    // クリック数のメタデータ要素を追加
+    messageLi.append($('input></input>', {
+        'type': 'hidden',
+        'name': 'hate',
+        'value': String(message.message_hate),
+    }));
+
+    // クリック数のメタデータ要素を追加
+    messageLi.append($('input></input>', {
+        'type': 'hidden',
+        'name': 'id',
+        'value': String(message.id),
+    }));
+
+    // クリック数加算イベント
+    messageLi.on('click', function(){
+        hate = $(this).children('input[name=id]').val();
+        if(!hates[hate]){
+            hates[hate] = 1;
+        } else {
+            hates[hate] += 1;
+        }
+    });
+
+    return messageLi;
+}
+
 // ユーザー情報の更新処理
 function updateUserInfo() {
     // 熱量の更新
-    console.log(user_vibes);
     $('#user_vibes').text('熱量: ' + Math.floor(user_vibes));
 }
 
