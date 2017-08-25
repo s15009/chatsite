@@ -37,45 +37,31 @@ class Twitter(AbstractBaseUser):
     REQUIRED_FIELDS = ['email']
 
 
-    # 1メッセージで上昇する熱量
+    # 熱量のマックス値
     VIBES_MAX = 100
+    # 1メッセージで上昇する熱量
     HOT_UP_VIBES_PER_MESSAGE = 10
-    COOL_DOWN_VIBES_PER_SECOND = 0.1
+    # 1秒間に下降する熱量
+    COOL_DOWN_VIBES_PER_SECOND = 1
+
     def get_vibes(self):
+        """
+        熱量取得
+        """
         from chats.models import Message
 
+        # プランD
         now = timezone.now()
-
-        # 熱量に影響を与えるメッセージの投稿時間の最小
-        deadline = now - timedelta(seconds=(self.HOT_UP_VIBES_PER_MESSAGE / self.COOL_DOWN_VIBES_PER_SECOND))
-
-        # 熱量に影響を与えるメッセージリスト
-        valid_message_list = Message.objects.filter(profile=self).filter(pub_date__gt=deadline).order_by('pub_date')
-
-        # 最新のメッセージ投稿がない場合は熱量0
-        if valid_message_list.count() == 0:
+        latest_message = Message.objects.filter(profile=self).order_by('pub_date').last()
+        if not latest_message:
             return 0
+        old_vibes = latest_message.vibes + self.HOT_UP_VIBES_PER_MESSAGE
+        elapsed_time = (now - latest_message.pub_date).total_seconds()
+        vibes = old_vibes - (elapsed_time * self.COOL_DOWN_VIBES_PER_SECOND)
+        if vibes < 0:
+            vibes = 0
 
-        total_vibes = 0
-        for message in valid_message_list:
-            # 現在時間からメッセージ投稿時間までの経過時間
-            elapsed_time = (now - message.pub_date).total_seconds()
-            # メッセージ単位での影響熱量
-            vibes = self.HOT_UP_VIBES_PER_MESSAGE - (elapsed_time * self.COOL_DOWN_VIBES_PER_SECOND)
-            total_vibes += vibes
-
-        # TODO 差分の時間を出して足す(保留中)
-        '''
-        prev_message = None
-        if valid_message_list[0].id != 1:
-            prev_message = valid_message_list[0].get_next_by_pub_date()
-        diff = valid_message_list[0].pub_date
-        if prev_message:
-            diff -= valid_message_list[0].pub_date - prev_message.pub_date if prev_message else 0
-
-        (valid_message_list.count() * self.HOT_UP_VIBES_PER_MESSAGE) + (diff * self.COOL_DOWN_VIBES_PER_SECOND)
-        '''
-        return total_vibes
+        return vibes
 
     def get_full_name(self):
         return self.username

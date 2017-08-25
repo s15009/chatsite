@@ -29,8 +29,8 @@ def index(request):
     print('user :', user)
 
     context = {
-            'latest_board_list': latest_board_list,
-            'user': user
+        'latest_board_list': latest_board_list,
+        'user': user,
     }
 
     return render(request, 'chats/index.html', context)
@@ -53,8 +53,8 @@ def create_board(request):
 
     user = request.user
     context = {
-            'form': form,
-            'user': user
+        'form': form,
+        'user': user,
     }
 
     return render(request, 'chats/create_board.html', context)
@@ -83,10 +83,15 @@ def board(request, board_id):
         board.login_users.add(profile)
         print('{}は{}にログインしました'.format(profile.username, board.board_name))
 
-	# メッセージ取得、ヘイトがあるのは除く
-    message_list = Message.objects.filter(board_id__id=board_id).exclude(message_hate__gt=100).order_by('-pub_date')[:10]
 
-    context = {'message_list': message_list, 'board': board, 'profile': profile, 'login_users': login_users}
+    message_list = Message.objects.filter(board_id__id=board_id).order_by('-pub_date')
+
+    context = {
+        'message_list': message_list,
+        'board': board,
+        'profile': profile,
+        'login_users': login_users
+    }
     return render(request, 'chats/board.html', context)
 
 @login_required
@@ -106,11 +111,12 @@ def get_message(request, board_id):
         return JsonResponse({'data': data}, safe=False)
 
     if request.method == 'POST':
+        # 更新分メッセージリスト取得
         latest_message_id = request.POST.get('latest_message_id')
         lmpdt = request.POST.get('latest_message_pub_date')
         hates = json.loads(request.POST.get('hates'))
 
-		#クリック時の削除ステータス更新
+        #クリック時の削除ステータス更新
         for target in hates:
             mess = Message.objects.get(id=target)
             mess.message_hate += hates[target]
@@ -125,13 +131,13 @@ def get_message(request, board_id):
                     .filter(board_id__id=board_id)\
                     .filter(pub_date__gt=latest_message_pub_date)\
                     .exclude(id=latest_message_id)\
-					.exclude(message_hate__gt=10)
+                    .exclude(message_hate__gt=10)
         else:
             updated_message_list = Message.objects.filter(board_id__id=board_id)
 
-		# update_messageがあれば表示するためのリストを作る
         # Jsonへの変換
         board = Board.objects.get(id=board_id)
+
         # 更新分投稿リスト
         message_list = []
         for message in updated_message_list:
@@ -142,27 +148,37 @@ def get_message(request, board_id):
                 'id': message.id,
                 'user_name': message.profile.username,
                 'message': message_text,
-                'pub_date': message.get_formated_pub_date(),
-				'message_hate': message.message_hate,
                 'image_url': image_url,
                 'vibes': message.vibes,
-                'pub_date': message.get_formated_pub_date()
-                })
+                'pub_date': message.get_formated_pub_date(),
+                'message_hate': message.message_hate,
+            })
             hates[message.id] = message.message_hate
 
-            # チャット部屋情報
+        # チャット部屋情報
         board_info = {
-               'board_name': board.board_name,
-                }
+           'board_name': board.board_name,
+        }
 
         # ログインユーザーリスト
         login_users = []
         for login_user in board.login_users.all():
             login_users.append({
-                'user_name': login_user.username
-                })
+                'user_name': login_user.username,
+            })
 
-        data = {'message_list': message_list, 'board_info': board_info, 'login_users': login_users, 'message_hate': hates}
+        # ユーザー情報
+        user_info = {
+            'user_vibes': request.user.get_vibes()
+        }
+
+        data = {
+            'message_list': message_list,
+            'board_info': board_info,
+            'user_info': user_info,
+            'login_users': login_users,
+            'message_hate': hates,
+        }
         return JsonResponse({'data': data}, safe=False)
 
     return HttpResponse('failed', content_type='text/plain')

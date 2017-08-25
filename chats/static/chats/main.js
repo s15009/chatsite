@@ -5,15 +5,14 @@ $(function() {
     // フォームの動き処理
     $('#text').on('click', function() {
         $('#submitBtn').show();
-        if ($('#text').prop('rows') < 2) {
-            $('#text').prop('rows', 2);
+        if ($(this).prop('rows') < 2) {
+            $(this).prop('rows', 2);
         }
     });
 
     // テキストボックスに文字が入力されるとそれに合わせて行数を増やす
     $('#text').on('keyup', function() {
-        var text = $('#text');
-        if (text.val() == '') {
+        if ($(this).val() == '') {
             $('#submitBtn').prop('disabled', true);
 
             // 添付ファイルが有る場合は送信ボタンを表示する
@@ -25,18 +24,18 @@ $(function() {
             $('#submitBtn').prop('disabled', false);
         }
         // テキストボックスのrowsの調整
-        var return_num = text.val().match(/\n/gm);
+        var return_num = $(this).val().match(/\n/gm);
         if (return_num) {
-            text.prop('rows', (return_num.length + 2));
+            $(this).prop('rows', (return_num.length + 2));
         }
         else {
-            text.prop('rows', 2);
+            $(this).prop('rows', 2);
         }
     });
 
     // 添付ファイルを付けると送信可能にする
     $('#file').on('change', function(e) {
-        if (this.files[0]) {
+        if ($(this).prop('files')[0]) {
             $('#submitBtn').show();
             $('#submitBtn').prop('disabled', false);
         }
@@ -117,9 +116,10 @@ $(function() {
             },
         }).done(function(data, textStatus, jqXHR) {
             // テキストフォームの初期化
-            $('#text').val('');
+            var text = $('#text');
+            text.val('');
+            text.prop('rows', 2);
             $('#submitBtn').prop('disabled', true);
-            $('#text').prop('rows', 2);
             $('#file').val('');
 
             updateMessage();
@@ -137,9 +137,11 @@ function updateMessage() {
         type: 'post',
         dateType: 'JSON',
         cache: 'false',
-        data: {latest_message_pub_date: latest_message_pub_date,
-                latest_message_id: latest_message_id,
-				hates: JSON.stringify(hates)},
+        data: {
+            latest_message_pub_date: latest_message_pub_date,
+            latest_message_id: latest_message_id,
+            hates: JSON.stringify(hates)
+        },
         beforeSend: function(xhr, settings) {
             xhr.setRequestHeader('X-CSRFToken', $("input[name='csrfmiddlewaretoken']").val());
         },
@@ -200,6 +202,10 @@ function updateMessage() {
         // チャット部屋情報更新処理
         var board_info = res.data['board_info'];
 
+        // ユーザー情報更新処理
+        user_vibes = res.data['user_info'].user_vibes;
+        updateUserInfo();
+
         // ヘイトの更新
         var message_hate = res.data['message_hate'];
         $('.message').each(function(i){
@@ -237,7 +243,14 @@ $('.message').on('click', function(){
 		}
 });
 
-// メッセージの熱量に応じてメッセージの背景色を変更
+// ユーザー情報の更新処理
+function updateUserInfo() {
+    // 熱量の更新
+    console.log(user_vibes);
+    $('#user_vibes').text('熱量: ' + Math.floor(user_vibes));
+}
+
+// メッセージの熱量に応じてメッセージのスタイルを変更
 function updateMessageVibes() {
     var message_list = $('.message');
     $.each(message_list, function(index, message) {
