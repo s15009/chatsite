@@ -122,6 +122,8 @@ $(function() {
             // 最新メッセージ情報の更新
             latest_message_pub_date = res.data['message'].pub_date;
             latest_message_id = message.id;
+            //hates[res.data['message'].id] = 0;
+            console.log(hates);
 
             // 投稿メッセージのスタイル更新
             updateMessageVibes();
@@ -290,14 +292,14 @@ function createMessageLi(message) {
     }));
 
     // クリック数のメタデータ要素を追加
-    messageLi.append($('input></input>', {
+    messageLi.append($('<input></input>', {
         'type': 'hidden',
         'name': 'hate',
         'value': String(message.message_hate),
     }));
 
     // クリック数のメタデータ要素を追加
-    messageLi.append($('input></input>', {
+    messageLi.append($('<input></input>', {
         'type': 'hidden',
         'name': 'id',
         'value': String(message.id),
