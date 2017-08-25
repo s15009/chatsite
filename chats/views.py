@@ -69,6 +69,7 @@ def board(request, board_id):
     board = Board.objects.get(id=board_id)
     login_users = board.login_users.all()
     profile = request.user
+    message_max = 10
 
     # 部屋が死んでいたら墓場ページへ
     if board.is_status == 1 or not board.is_alive():
@@ -82,15 +83,18 @@ def board(request, board_id):
     else:
         board.login_users.add(profile)
         print('{}は{}にログインしました'.format(profile.username, board.board_name))
+    
+    message_total = Message.objects.filter(board_id__id=board_id).count()
 
-
-    message_list = Message.objects.filter(board_id__id=board_id).order_by('-pub_date')
+    # メッセージ取得、ヘイトがあるのは除く
+    message_list = Message.objects.filter(board_id__id=board_id).exclude(message_hate__gt=10).order_by('-pub_date')[:message_max]
 
     context = {
         'message_list': message_list,
         'board': board,
         'profile': profile,
-        'login_users': login_users
+        'login_users': login_users,
+        'message_total': message_total,
     }
     return render(request, 'chats/board.html', context)
 
@@ -214,7 +218,6 @@ def post_message(request, board_id):
         }
 
         return JsonResponse({'data': data}, safe=False)
-        #return HttpResponse('successful', content_type="text/plain")
 
     return HttpResponse('failed', content_type='text/plain')
 
