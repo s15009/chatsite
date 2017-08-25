@@ -199,17 +199,34 @@ function updateMessage() {
         // チャット部屋情報更新処理
         var board_info = res.data['board_info'];
 
-        // ヘイトの更新
+        //メッセージのの件数を絞る
         var message_hate = res.data['message_hate'];
+		//メッセージの件数取得
+        var len = 0;
+		$('.message').each(function(i){
+			len++;
+		});		
+
+		// n件以下になるまで削除
+        while(len > 10){
+            target = $('.message').filter(":last");
+            id = target.val();
+            delete message_hate[id];
+            target.remove();
+            len--;
+        }
+
+        // ヘイトの更新.削除
         $('.message').each(function(i){
             id = $(this).children("input[name=id]").val();
             $(this).children("input[name=hate]").val(message_hate[id]);
             hate = $(this).children("input[name=hate]").val();
             if(hate > 10){
                 $(this).remove();
+                delete message_hate[id];
             }
         });
-        
+                
         //ヘイト初期化
         for(var value in message_hate){
             message_hate[value] = 0;

@@ -69,6 +69,7 @@ def board(request, board_id):
     board = Board.objects.get(id=board_id)
     login_users = board.login_users.all()
     profile = request.user
+    message_max = 10
 
     # 部屋が死んでいたら墓場ページへ
     if board.is_status == 1 or not board.is_alive():
@@ -84,7 +85,7 @@ def board(request, board_id):
         print('{}は{}にログインしました'.format(profile.username, board.board_name))
 
 	# メッセージ取得、ヘイトがあるのは除く
-    message_list = Message.objects.filter(board_id__id=board_id).exclude(message_hate__gt=100).order_by('-pub_date')[:10]
+    message_list = Message.objects.filter(board_id__id=board_id).exclude(message_hate__gt=10).order_by('-pub_date')[:message_max]
 
     context = {'message_list': message_list, 'board': board, 'profile': profile, 'login_users': login_users}
     return render(request, 'chats/board.html', context)
