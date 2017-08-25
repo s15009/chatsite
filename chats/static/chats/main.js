@@ -208,11 +208,13 @@ function updateMessage() {
 		});		
 
 		// n件以下になるまで削除
-        while(len > 10){
+        while(len > 5){
             target = $('.message').filter(":last");
             id = target.val();
             delete message_hate[id];
-            target.remove();
+			target.fadeOut('slow').queue(function(){
+				target.remove();
+			});
             len--;
         }
 

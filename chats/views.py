@@ -83,11 +83,13 @@ def board(request, board_id):
     else:
         board.login_users.add(profile)
         print('{}は{}にログインしました'.format(profile.username, board.board_name))
+    
+    message_total = Message.objects.filter(board_id__id=board_id).count()
 
 	# メッセージ取得、ヘイトがあるのは除く
     message_list = Message.objects.filter(board_id__id=board_id).exclude(message_hate__gt=10).order_by('-pub_date')[:message_max]
 
-    context = {'message_list': message_list, 'board': board, 'profile': profile, 'login_users': login_users}
+    context = {'message_list': message_list, 'board': board, 'profile': profile, 'login_users': login_users, 'message_total': message_total}
     return render(request, 'chats/board.html', context)
 
 @login_required
