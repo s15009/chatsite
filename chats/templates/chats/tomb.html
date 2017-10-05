@@ -25,9 +25,12 @@
 {% block content %}
 <div class="container">
     <h1>{{ board.board_name }}の跡地</h1>    
-
     <div id="comment_list" class="jumbotron">
         <h2>歴史</h2>
+        <p>平均熱量: {{ board.get_message_vibe_average }}</p>
+        <p>平均ヘイト: {{ board.get_message_hate_average }}</p>
+        <p>参加人数: {{ board.get_board_num }}</p>
+        <img src="{{ board.get_most_hate_image }}">
         <p>{{ board.get_display_pub_date  }} 〜 {{ board.get_display_dead_time }}</p>
         <ul class="list-group">
             {% if comment_list %}

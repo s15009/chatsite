@@ -38,6 +38,45 @@ class Board(models.Model):
     def get_display_dead_time(self):
         dead_time = self.pub_date + timedelta(hours = 9, seconds = self.lifespan)
         return dead_time.strftime(self.DISPLAY_DATETIME_FORMAT)
+    # ボードのメッセージの統計
+    def get_comment_squeeze(self):
+        pass
+
+	#ボードの平均熱量
+    def get_message_vibe_average(self):
+        mess_list = Message.objects.filter(board_id__id=self.id)
+        allvibes = 0
+        count = 0
+        for mess in mess_list:
+            allvibes += mess.vibes
+            count+=1
+        return allvibes / count
+	#ボードの平均ヘイト
+    def get_message_hate_average(self):
+        mess_list = Message.objects.filter(board_id__id=self.id)
+        allhates = 0
+        count = 0
+        for mess in mess_list:
+            allhates += mess.message_hate
+            count+=1
+        return allhates / count
+	#ボードの総参加人数
+    def get_board_num(self):
+        count = 0
+        for mem in self.login_users.all():
+            count+=1
+        return count
+
+	#一番ヘイトが集まった画像
+    def get_most_hate_image(self):
+        mess_list = Message.objects.filter(board_id__id=self.id)
+        most_image = Message.objects
+        count = 0
+        for mess in mess_list:
+            if(mess.image and count <= mess.message_hate):
+                most_image = mess
+                count = mess.message_hate 
+        return most_image.image.url
 
     def __str__(self):
         return self.board_name

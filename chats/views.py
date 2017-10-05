@@ -73,7 +73,7 @@ def board(request, board_id):
 
     # 部屋が死んでいたら墓場ページへ
     if board.is_status == 1 or not board.is_alive():
-        comment_list = Message.objects.filter(board_id__id=board_id)
+        comment_list = Message.objects.filter(board_id__id=board_id)[:message_max]
         context = {'board': board, 'comment_list': comment_list}
         return render(request, 'chats/tomb.html', context)
 

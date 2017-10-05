@@ -117,7 +117,9 @@ $(function() {
                 parseInt(res.data['message'].vibes),
                 0
             );
-            $('#message_list ul').prepend(createMessageLi(message));
+            $('#message_list ul').prepend(createMessageLi(message)
+				.css({right:"-100px", opacity:"0.0"})
+				.animate({right:"0", opacity:"1.0"}, 500));
 
             // 最新メッセージ情報の更新
             latest_message_pub_date = res.data['message'].pub_date;
@@ -174,7 +176,7 @@ function updateMessage() {
             $.each(message_list, function(index, message) {
                 // 例) <li class="list-group-item my-2"><p></p><img></li>
                 var messageLi = $("<li></li>", {
-                    'class': 'list-group-item my-2 message'
+                    'class': 'list-group-item my-2 message',
                 });
                 messageLi.append('<p>' + AutoLink(message.message) + '</p>');
                 // 画像添付があれば<img>要素を追加
@@ -202,7 +204,7 @@ function updateMessage() {
 				});	
 
                 // listのDOMに追加する
-                $('#message_list ul').prepend(messageLi);
+                $('#message_list ul').prepend(messageLi.hide().fadeIn(1000));
             });
             
             // メッセージ数のカウントアップ
@@ -232,7 +234,7 @@ function updateMessage() {
             target = $('.message').filter(":last");
             id = target.val();
             delete message_hate[id];
-			target.fadeOut('slow').queue(function(){
+			target.css({left:"0", opacity:"1.0"}).animate({left:"-100px", opacity:"0.0"}, 500).queue(function(){
 				target.remove();
 			});
             len--;
@@ -244,7 +246,9 @@ function updateMessage() {
             $(this).children("input[name=hate]").val(message_hate[id]);
             hate = $(this).children("input[name=hate]").val();
             if(hate > 10){
-                $(this).remove();
+                $(this).css({left:"0", opacity:"1.0"}).animate({left:"-100px", opacity:"0.0"}, 500).queue(function(){
+					$(this).remove();
+				});
                 delete message_hate[id];
             }
         });
