@@ -347,6 +347,8 @@ function createMessageLi(message) {
 function updateUserInfo() {
     // 熱量の更新
     $('#user_vibes').text('熱量: ' + Math.floor(user_vibes));
+    //ゲージ変動のアニメーション
+    $('#gauge').animate({})
 }
 
 // メッセージの熱量に応じてメッセージのスタイルを変更

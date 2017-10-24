@@ -1,37 +1,44 @@
 {% extends "chats/base.html" %}
+    
+{% block style %}{% load static %}<link rel="stylesheet" href="{% static 'chats/tomb.css' %}">{% endblock %}
 
 {% block title %}{{ board.board_name }}の跡地 || Time Bokan{% endblock %}
-
-{% block account %}
-{% if user %}
-<div class="dropdown show">
-    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        {{ user.username }}
-    </a>
-    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-        <a class="dropdown-item" href="{% url 'twitter:logout' %}" value="Logout">ログアウト</a>
-    </div>
-</div>
-{% else %}
-<li class="nav-item">
-    <a class="nav-link btn btn-primary" href="{% url 'twitter:new' %}" value="Create Account" role="button">ユーザー登録</a>
-</li>
-<li>
-    <a class="nav-link btn btn-primary" href="{% url 'twitter:login' %}" value="Login" role="button">ログイン</a>
-</li>
-{% endif %}
-{% endblock %}
 
 {% block content %}
 <div class="container">
     <h1>{{ board.board_name }}の跡地</h1>    
     <div id="comment_list" class="jumbotron">
-        <h2>歴史</h2>
-        <p>平均熱量: {{ board.get_message_vibe_average }}</p>
-        <p>平均ヘイト: {{ board.get_message_hate_average }}</p>
-        <p>参加人数: {{ board.get_board_num }}</p>
-        <img src="{{ board.get_most_hate_image }}">
-        <p>{{ board.get_display_pub_date  }} 〜 {{ board.get_display_dead_time }}</p>
+		<div class="row row-eq-height">
+			<div class="col-12 text-center">
+				<h2 class="history">歴史</h2>
+			</div>
+			<div class="col-10 col-offset-1 text-center mx-auto">
+				<p class="time_label">{{ board.get_display_pub_date  }} 〜 {{ board.get_display_dead_time }}</p>
+			</div> 
+			<div class="col-10 col-off-set-1 mx-auto">
+			<table class="table mx-auto">
+				<tbody>
+					<tr>
+						<td class="block_size"><h3>参加人数: {{ board.get_board_num }}</h3><img class="img-responsive" src=""></td>
+						<td><h3>総発言数: {{ board.get_comment_total }}</h3></td>
+					</tr>
+					<tr>
+						<td><h3>平均ヘイト: {{ board.get_message_hate_average }}</h3></td>
+						<td rowspan="2">
+							{% if board.get_most_hate_image %}
+								<img class="img-responsive" src="{{ board.get_most_hate_image }}">
+							{% else %}
+								<p>投稿された画像はありません</p>
+							{% endif %}
+						</td>
+					</tr>
+					<tr>
+						<td><h3>平均熱量: {{ board.get_message_vibe_average }}</h3></td>
+					</tr>
+				</tbody>
+			</table>
+			</div>
+		</div>
         <ul class="list-group">
             {% if comment_list %}
             {% for comment in comment_list %}

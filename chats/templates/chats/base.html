@@ -25,8 +25,27 @@
                     </li>
                 </ul>
                 <ul class="navbar-nav">
-                    {% block account %}{% endblock %}
-                </ul>
+                {% block account %}
+                {% if user %}
+                <div class="dropdown show">
+                    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {{ user.username }}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                        <a class="dropdown-item" href="{% url 'twitter:logout' %}" value="Logout">ログアウト</a>
+                    </div>
+                </div>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link btn btn-default mx-1" href="{% url 'twitter:new' %}" value="Create Account" role="button">ユーザー登録</a>
+                </li>
+                <li>
+                    <a class="nav-link btn btn-default mx-1" href="{% url 'twitter:login' %}" value="Login" role="button">ログイン</a>
+                </li>
+                {% endif %}
+                {% endblock %}
+
+               </ul>
             </div>
         </nav>
     </header>

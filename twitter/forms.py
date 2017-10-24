@@ -5,6 +5,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.utils.translation import ugettext_lazy as _
 
 password = forms.RegexField(
+		label="パスワード",
 		max_length = 16,
 		min_length = 8,
 		regex = r'^[a-zA-Z][a-zA-Z]+$',
@@ -16,6 +17,7 @@ password = forms.RegexField(
 
 class MyRegistrationForm(UserCreationForm):
 	username = forms.RegexField(
+		label="ユーザーネーム",
         max_length = 8,
         min_length = 3,
         regex = r'^[a-z][a-zA-Z]+$',
@@ -25,8 +27,7 @@ class MyRegistrationForm(UserCreationForm):
 	)
 	
 	password1 = password
-	password2 = password
-	email = forms.EmailField(required=True)
+	email = forms.EmailField(required=True,label="メールアドレス")
 
 	class Meta:
 		model = Twitter

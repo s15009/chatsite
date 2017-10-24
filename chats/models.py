@@ -38,9 +38,10 @@ class Board(models.Model):
     def get_display_dead_time(self):
         dead_time = self.pub_date + timedelta(hours = 9, seconds = self.lifespan)
         return dead_time.strftime(self.DISPLAY_DATETIME_FORMAT)
-    # ボードのメッセージの統計
-    def get_comment_squeeze(self):
-        pass
+
+    # ボードのメッセージ総数
+    def get_comment_total(self):
+        return Message.objects.filter(board_id__id=self.id).count() 
 
 	#ボードの平均熱量
     def get_message_vibe_average(self):
