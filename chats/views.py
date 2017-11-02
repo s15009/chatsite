@@ -69,13 +69,17 @@ def board(request, board_id):
     board = Board.objects.get(id=board_id)
     login_users = board.login_users.all()
     profile = request.user
+    message_max = 10
 
     # 部屋が死んでいたら墓場ページへ
     if board.is_status == 1 or not board.is_alive():
         comment_list = Message.objects.filter(board_id__id=board_id)
-        #コメントの総数
+        #表示するコメント数を設定
         indicate_nums = Message.objects.filter(board_id__id=board_id).count()
-
+        print(indicate_nums / 5)
+        #時系列順取得
+        comment_cut = comment_list.order_by('-pub_date')
+        
         context = {'board': board, 'comment_list': comment_list}
         return render(request, 'chats/tomb.html', context)
 
@@ -126,7 +130,7 @@ def get_message(request, board_id):
         for target in hates:
             mess = Message.objects.get(id=target)
             mess.message_hate += hates[target]
-            mess.save()
+            mess.update_save()
             hates[target] = mess.message_hate
 
         updated_message_list = []

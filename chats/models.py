@@ -7,7 +7,6 @@ from datetime import timedelta
 from twitter.models import Twitter
 
 
-
 class Board(models.Model):
     DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S:%f %z'
     DISPLAY_DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -71,12 +70,14 @@ class Board(models.Model):
 	#一番ヘイトが集まった画像
     def get_most_hate_image(self):
         mess_list = Message.objects.filter(board_id__id=self.id)
-        most_image = Message.objects
+        most_image = None
         count = 0
         for mess in mess_list:
             if(mess.image and count <= mess.message_hate):
                 most_image = mess
                 count = mess.message_hate 
+        if most_image is None:
+            return False
         return most_image.image.url
 
     def __str__(self):
@@ -84,8 +85,9 @@ class Board(models.Model):
 
 class Message(models.Model):
     DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S:%f %z'
-
+    
     board_id = models.ForeignKey(Board, on_delete=models.CASCADE)
+    sequence_id = models.IntegerField(default=None, null=True)
     profile = models.ForeignKey(Twitter)
     message = models.CharField(max_length=200)
     pub_date = models.DateTimeField('date publish')
@@ -93,9 +95,30 @@ class Message(models.Model):
     image = models.ImageField(upload_to='images/', null=True, default=None)
     vibes = models.IntegerField(default=0)
 
+    
+    class Meta:
+        unique_together = (("board_id", "sequence_id"))
+
     def get_formated_pub_date(self):
-        jptime = self.pub_date + timedelta(hours = 9)
-        return self.pub_date.strftime(self.DATETIME_FORMAT)
+	    jptime = self.pub_date + timedelta(hours = 9)
+	    return self.pub_date.strftime(self.DATETIME_FORMAT)
 
     def __str__(self):
         return self.message
+
+    #insert時のsave override
+    def save(self):
+	    #ルームにコメントがない場合の初期化
+	    print("インサートっすよ")
+	    comment_list = Message.objects.filter(board_id__id=self.board_id.id)
+	    if len(comment_list) == 0:
+	        self.sequence_id = 1
+	    else:
+	        self.sequence_id = Message.objects.filter(board_id__id=self.board_id.id).order_by('sequence_id').last().sequence_id + 1
+	    super(Message, self).save()
+
+    def update_save(self):
+        print("アップデートです")
+        super(Message, self).save()
+
+
