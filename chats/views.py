@@ -74,11 +74,21 @@ def board(request, board_id):
     # 部屋が死んでいたら墓場ページへ
     if board.is_status == 1 or not board.is_alive():
         comment_list = Message.objects.filter(board_id__id=board_id)
-        #表示するコメント数を設定
+        most_vibe = Message.objects.filter(board_id__id=board_id).order_by('-vibes').first()
+        last_mess = Message.objects.filter(board_id__id=board_id).order_by('sequence_id').latest('sequence_id')
+        target_mess = most_vibe.sequence_id
+        #全体の二割の数
         indicate_nums = Message.objects.filter(board_id__id=board_id).count()
-        print(indicate_nums / 5)
+        if indicate_nums > 50:
+            if target_mess - indicate_nums >= 1 and target_mess + indicate_nums <= last_mess.sequence_id:
+                back = target_mess - indicate_nums
+                front = target_mess + indicate_nums
+                comment_range = range(back, front)
+                comment_list = Message.objects.filter(sequence_id__in=comment_range);
+        else:
+            comment_list = Message.objects.filter(board_id__id=board_id)
+        print(comment_list)
         #時系列順取得
-        comment_cut = comment_list.order_by('-pub_date')
         
         context = {'board': board, 'comment_list': comment_list}
         return render(request, 'chats/tomb.html', context)

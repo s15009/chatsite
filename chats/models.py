@@ -50,7 +50,9 @@ class Board(models.Model):
         for mess in mess_list:
             allvibes += mess.vibes
             count+=1
-        return allvibes / count
+        if allvibes == 0 or count == 0:
+            return 0
+        return allvibes // count
 	#ボードの平均ヘイト
     def get_message_hate_average(self):
         mess_list = Message.objects.filter(board_id__id=self.id)
@@ -59,7 +61,9 @@ class Board(models.Model):
         for mess in mess_list:
             allhates += mess.message_hate
             count+=1
-        return allhates / count
+        if allhates == 0 or count == 0:
+            return 0
+        return allhates // count
 	#ボードの総参加人数
     def get_board_num(self):
         count = 0
@@ -108,8 +112,6 @@ class Message(models.Model):
 
     #insert時のsave override
     def save(self):
-	    #ルームにコメントがない場合の初期化
-	    print("インサートっすよ")
 	    comment_list = Message.objects.filter(board_id__id=self.board_id.id)
 	    if len(comment_list) == 0:
 	        self.sequence_id = 1
@@ -117,8 +119,8 @@ class Message(models.Model):
 	        self.sequence_id = Message.objects.filter(board_id__id=self.board_id.id).order_by('sequence_id').last().sequence_id + 1
 	    super(Message, self).save()
 
+	#update時のsave
     def update_save(self):
-        print("アップデートです")
         super(Message, self).save()
 
 

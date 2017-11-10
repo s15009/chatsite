@@ -194,14 +194,6 @@ function updateMessage() {
                 }));
 				messageLi.append('<input type="hidden" name="hate" value="' + message.message_hate + '"/>');
 				messageLi.append('<input type="hidden" name="id" value="' + message.id + '"/>');
-				messageLi.on("click", function(){
-					hate = $(this).children("input[name=id]").val();
-					if(!hates[hate]){
-						hates[hate] = 1; 
-					} else {
-						hates[hate] += 1;
-					}
-				});	
 
                 // listのDOMに追加する
                 $('#message_list ul').prepend(messageLi.hide().fadeIn(1000));
@@ -230,7 +222,7 @@ function updateMessage() {
 		});		
 
 		// n件以下になるまで削除
-        while(len > 5){
+        while(len > 20){
             target = $('.message').filter(":last");
             id = target.val();
             delete message_hate[id];
@@ -269,14 +261,21 @@ function updateMessage() {
     });
 }
 
-//既に存在するメッセージにクリックイべ追加
-$('.message').on('click', function(){
-	hate = $(this).children("input[name=id]").val();
+//メッセージにクリックイべ追加 動的に追加したものにも対応
+var timeout;
+$(document).on("click", ".message", function(){
+    hate = $(this).children("input[name=id]").val();
 		if(!hates[hate]){
 			hates[hate] = 1; 
 		} else {
 			hates[hate] += 1;
 		}
+    $this = $(this);
+    $this.jrumble();
+    clearTimeout(timeout);
+    $this.trigger('startRumble');
+    timeout = setTimeout(function(){$this.trigger('stopRumble');}, 1500)
+    console.log("なう");
 });
 
 // メッセージクラス
