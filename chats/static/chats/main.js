@@ -2,6 +2,15 @@ $(function() {
     // メッセージ熱量処理
     updateMessageVibes();
 
+    //熱量のゲージ
+    gage = new JustGage({
+        id:"gauge",
+        value: user_vibes,
+        min:0,
+        max:100,
+        title:"熱量"
+    });
+
     // フォームの動き処理
     $('#text').on('click', function() {
         $('#submitBtn').show();
@@ -261,6 +270,8 @@ function updateMessage() {
     });
 }
 
+
+
 //メッセージにクリックイべ追加 動的に追加したものにも対応
 var timeout;
 $(document).on("click", ".message", function(){
@@ -347,7 +358,7 @@ function updateUserInfo() {
     // 熱量の更新
     $('#user_vibes').text('熱量: ' + Math.floor(user_vibes));
     //ゲージ変動のアニメーション
-    $('#gauge').animate({})
+    gage.refresh(user_vibes);
 }
 
 // メッセージの熱量に応じてメッセージのスタイルを変更
