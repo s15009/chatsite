@@ -64,20 +64,28 @@ $(function() {
         }
     });
 
+    //寿命カウントダウン
+    var b_pub_date = new Date(board_pub_date.slice(0, -9));
+    b_pub_date.setSeconds(b_pub_date.getSeconds() + board_lifespan)
+    $('#countdown').timeTo({
+        timeTo: b_pub_date,
+        theme:"black",
+        fontsize: 25
+    })
 
     // 寿命のカウントダウン処理
-    var timer = setInterval(function() {
-        var b_pub_date = new Date(board_pub_date.slice(0, -9));
-        var elapsed_time = (Date.now() - b_pub_date) / 1000;
-        var timelimit = (board_lifespan - Math.floor(elapsed_time));
+    //var timer = setInterval(function() {
+    //    var b_pub_date = new Date(board_pub_date.slice(0, -9));
+    //    var elapsed_time = (Date.now() - b_pub_date) / 1000;
+    //    var timelimit = (board_lifespan - Math.floor(elapsed_time));
 
-        // 寿命が-1になるとリダイレクトする
-        if (timelimit <= 0) {
-            clearInterval(timer);
-            window.location.href = window.location.href;
-        }
-        $('#timelimit').text('残り時間 : ' + timelimit);
-    }, 100);
+    //    // 寿命が-1になるとリダイレクトする
+    //    if (timelimit <= 0) {
+    //        clearInterval(timer);
+    //        window.location.href = window.location.href;
+    //    }
+    //    $('#timelimit').text('残り時間 : ' + timelimit);
+    //}, 100);
 
     // 定期処理
     var check = setInterval('updateMessage()', 3000);

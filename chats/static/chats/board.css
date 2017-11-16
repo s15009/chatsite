@@ -16,3 +16,7 @@
   padding: 6px;
   border-radius: 12px; 
 }
+
+ul {
+    list-style-type: none;   
+}
